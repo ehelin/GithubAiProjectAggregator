@@ -4,8 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b024b5d9-c0e5-4570-83f2-82db7402921a</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>Summarizer.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -25,7 +24,7 @@
     <Compile Include="embeddings.py" />
     <Compile Include="github_api.py" />
     <Compile Include="server.py" />
-    <Compile Include="summarizer.py" />
+    <Compile Include="Summarizer.py" />
     <Compile Include="tools.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
