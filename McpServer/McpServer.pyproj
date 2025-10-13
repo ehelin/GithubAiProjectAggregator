@@ -24,6 +24,7 @@
     <Compile Include="embeddings.py" />
     <Compile Include="github_api.py" />
     <Compile Include="server.py" />
+    <Compile Include="ModelCore.py" />
     <Compile Include="Summarizer.py" />
     <Compile Include="tools.py" />
   </ItemGroup>
