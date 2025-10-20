@@ -1,0 +1,13 @@
+- Project Overview: Develops Visual Studio Code with Microsoft and community collaboration.
+- Technologies Used:
+  * MIT License
+  * Monthly updates
+  * Rich extensibility model
+  * Integration with existing tools
+- Key Features:
+  * Comprehensive code editing
+  * Navigation and understanding support
+  * Lightweight debugging
+  * Includes bundled extensions
+  * Supports multiple operating systems
+- Who Uses It: Software developers who require a versatile coding environment.

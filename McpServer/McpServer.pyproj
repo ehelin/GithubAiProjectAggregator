@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>b024b5d9-c0e5-4570-83f2-82db7402921a</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Summarizer.py</StartupFile>
+    <StartupFile>ModelCore.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,12 +21,18 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="embeddings.py" />
-    <Compile Include="github_api.py" />
-    <Compile Include="server.py" />
+    <Compile Include="DAL\GithubRepositoriesList_Repository.py" />
+    <Compile Include="DAL\Summary_Repository.py" />
+    <Compile Include="DAL\__init__.py" />
+    <Compile Include="Embeddings.py" />
+    <Compile Include="GithubApi.py" />
+    <Compile Include="Server.py" />
     <Compile Include="ModelCore.py" />
     <Compile Include="Summarizer.py" />
-    <Compile Include="tools.py" />
+    <Compile Include="Tools.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DAL\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

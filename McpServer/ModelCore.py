@@ -22,7 +22,7 @@ class ModelCore:
                 adapter_path: str = "./fine_tuned_phi_habits",
                 device: str = "cpu",
                 safe_mode = True,
-                max_new_tokens: int = 100,
+                max_new_tokens: int = 300,
                 temperature: float = 0.5,
                 top_p: float = 0.9):
         
@@ -129,21 +129,24 @@ class ModelCore:
         elapsed = time.time() - start_time
         print(f"✅ Model ready (loaded in {elapsed:.2f} seconds)\n")
 
-    def generate_response(self, input_text: str) -> str:
-        if self.model is None or self.tokenizer is None:
-            raise RuntimeError("Model not loaded")
+    # ModelCore.py  (replace your generate_response with this)
+    def generate_response(self, prompt: str, max_new_tokens: int = 400, temperature: float = 0.3) -> str:
+        inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
 
-        inputs = self.tokenizer(input_text, return_tensors="pt").to(self.device)
-        with torch.no_grad():
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=self.max_new_tokens,
-                temperature=self.temperature,
-                top_p=self.top_p,
-                do_sample=True,
-            )
-        response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
-        return response.strip()
+        outputs = self.model.generate(
+            **inputs,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            do_sample=True,
+            top_p=0.9,
+            repetition_penalty=1.05,
+            eos_token_id=self.tokenizer.eos_token_id,
+        )
+
+        # ⚠️ Only decode the newly generated tokens (exclude the prompt)
+        generated_ids = outputs[0][inputs.input_ids.shape[-1]:]
+        text = self.tokenizer.decode(generated_ids, skip_special_tokens=True)
+        return text.strip()
     
 # Singleton instance for shared use
 _model_instance: ModelCore = None
@@ -174,7 +177,7 @@ if __name__ == "__main__":
                 break
             if not user_input:
                 continue  # skip empty input
-            response = s.generate_response(user_input)
+            response = s.generate_response(prompt=user_input, max_new_tokens=400, temperature=0.3)
             print("\n--- Model Response ---\n")
             print(response)
             print("\n----------------------\n")
