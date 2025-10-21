@@ -25,25 +25,24 @@ class Summarizer:
         self.repo_name = repo_name  # format "owner/repo"
         self.repo = SummaryRepository()
         self.model = get_model_instance()        
-        self.owner, self.repo_short = self._split_repo()
-        self.metadata = get_repo_metadata(self.owner, self.repo_short)
+        # self.owner, self.repo_short = self._split_repo()
+        # self.metadata = get_repo_metadata(self.owner, self.repo_short)
 
-    # Split "owner/repo" into ("owner", "repo")
-    def _split_repo(self):
-        owner, repo = self.repo_name.split("/")
-        return owner, repo
+    # # Split "owner/repo" into ("owner", "repo")
+    # def _split_repo(self):
+    #     owner, repo = self.repo_name.split("/")
+    #     return owner, repo
        
     # =======================================================================
     # For provided github repository, summarize readme file
     # =======================================================================
-    def summarize_repo_readme(self):
+    def summarize_repo_readme(self, owner: str, repo: str) -> str:
         print("");
         print("sumarize_repo_readme()");
         
         print("Pulling data...");
-        owner, repo = self._split_repo()
         readme_content = get_readme(owner, repo)
-        metadata = self.metadata
+        metadata = get_repo_metadata(owner, repo)
         
         print("Setting up model request and sending...");
         system_prompt = (
@@ -90,14 +89,13 @@ class Summarizer:
     # =======================================================================
     # For provided github repository, summarize latest commits
     # =======================================================================
-    def summarize_commits(self):
+    def summarize_commits(self, owner: str, repo: str) -> str:
         print("");
         print("summarize_commits()");
         
-        print("Pulling data...");
-        owner, repo = self._split_repo()
-        commits = get_commits(owner, repo, limit=10)
-        metadata = self.metadata
+        print("Pulling data...");        
+        commits = get_commits(owner, repo)
+        metadata = get_repo_metadata(owner, repo)
 
         if not commits:
             print("⚠️ No commit data available to summarize.");
@@ -151,14 +149,13 @@ class Summarizer:
     # =======================================================================
     # For provided github repository, summarize latest issues
     # =======================================================================
-    def summarize_issues(self):
+    def summarize_issues(self, owner: str, repo: str) -> str:
         print("");
         print("summarize_issues()");
         
         print("Pulling data...");
-        owner, repo = self._split_repo()
-        issues = get_issues(owner, repo, limit=10)
-        metadata = self.metadata
+        issues = get_issues(owner, repo)
+        metadata = get_repo_metadata(owner, repo)
 
         if not issues:
             print("⚠️ No issues found for this repository.");
@@ -213,14 +210,14 @@ class Summarizer:
     # =======================================================================
     # For provided github repository, summarize latest pull requests
     # =======================================================================
-    def summarize_pull_requests(self):
+    def summarize_pull_requests(self, owner: str, repo: str) -> str:
         print("");
         print("summarize_pull_requests()");
                 
         print("Pulling data...");
         owner, repo = self._split_repo()
-        pull_requests = get_pull_requests(owner, repo, limit=10)
-        metadata = self.metadata
+        pull_requests = get_pull_requests(owner, repo)
+        metadata = get_repo_metadata(owner, repo)
 
         if not pull_requests:
             print("⚠️ No pull requests found for this repository.");
@@ -291,6 +288,7 @@ class Summarizer:
 
         return summary_text  # Optional — remove this if you don’t want to return anything
 
+# local test run entry point
 if __name__ == "__main__":
     print("🧠 Starting Summarizer")
 
