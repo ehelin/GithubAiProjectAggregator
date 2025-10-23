@@ -8,63 +8,22 @@ namespace McpClient
 {
     public class McpClient
     {
-        private Process _mcpProcess;
+        private readonly Process _mcpProcess;
 
-        public McpClient()
+        public McpClient(Process existingProcess)
         {
-            StartMcpServerIfNotRunning();
+            if (existingProcess == null)
+                throw new ArgumentNullException(nameof(existingProcess));
+
+            if (existingProcess.HasExited)
+                throw new InvalidOperationException("The MCP server process has already exited.");
+
+            _mcpProcess = existingProcess;
         }
 
-        private void StartMcpServerIfNotRunning()
-        {
-            if (_mcpProcess != null && !_mcpProcess.HasExited)
-                return;
-
-            _mcpProcess = new Process();
-            _mcpProcess.StartInfo.FileName = "python";                    // Or "python3"
-            _mcpProcess.StartInfo.Arguments = "McpServer/Server.py";
-            _mcpProcess.StartInfo.RedirectStandardInput = true;
-            _mcpProcess.StartInfo.RedirectStandardOutput = true;
-            _mcpProcess.StartInfo.RedirectStandardError = true;
-            _mcpProcess.StartInfo.UseShellExecute = false;
-            _mcpProcess.StartInfo.CreateNoWindow = true;
-
-            _mcpProcess.Start();
-            Console.WriteLine("✅ MCP Server started.");
-        }
-
-        // ------------------------ Helper Method ------------------------ //
-
-        private async Task<string> CallMcpToolAsync(string toolName, string owner, string repo)
-        {
-            var request = new
-            {
-                jsonrpc = "2.0",
-                id = Guid.NewGuid().ToString(), // unique per request
-                method = toolName,
-                @params = new { owner = owner, repo = repo }
-            };
-
-            string jsonRequest = JsonSerializer.Serialize(request);
-            await _mcpProcess.StandardInput.WriteLineAsync(jsonRequest);
-            await _mcpProcess.StandardInput.FlushAsync();
-
-            string responseLine = await _mcpProcess.StandardOutput.ReadLineAsync();
-            if (responseLine == null)
-                return "⚠ No response from MCP server.";
-
-            using JsonDocument doc = JsonDocument.Parse(responseLine);
-
-            if (doc.RootElement.TryGetProperty("result", out var result))
-                return result.ToString();
-
-            if (doc.RootElement.TryGetProperty("error", out var error))
-                return "❌ Error from MCP: " + error.ToString();
-
-            return "⚠ Unexpected MCP response: " + responseLine;
-        }
-
-        // ------------------------ Public Methods ------------------------ //
+        // ------------------------------------------------------
+        //  Public API Methods
+        // ------------------------------------------------------
 
         public async Task<string> SummarizeReadmeAsync(string owner, string repo) =>
             await CallMcpToolAsync("summarize.readme", owner, repo);
@@ -77,5 +36,44 @@ namespace McpClient
 
         public async Task<string> SummarizePullRequestsAsync(string owner, string repo) =>
             await CallMcpToolAsync("summarize.pull_requests", owner, repo);
+
+        // ------------------------------------------------------
+        //  Core JSON-RPC Call Logic
+        // ------------------------------------------------------
+
+        private async Task<string> CallMcpToolAsync(string toolName, string owner, string repo)
+        {
+            var request = new
+            {
+                jsonrpc = "2.0",
+                id = Guid.NewGuid().ToString(),
+                method = toolName,
+                @params = new { owner = owner, repo = repo }
+            };
+
+            string jsonRequest = JsonSerializer.Serialize(request);
+
+            // Send request to the Python MCP server
+            await _mcpProcess.StandardInput.WriteLineAsync(jsonRequest);
+            await _mcpProcess.StandardInput.FlushAsync();
+
+            // Read and parse the response
+            string? responseLine = await _mcpProcess.StandardOutput.ReadLineAsync();
+            if (responseLine == null)
+                return "⚠ No response received from MCP server.";
+
+            using var doc = JsonDocument.Parse(responseLine);
+
+            // Successful result
+            if (doc.RootElement.TryGetProperty("result", out var result))
+                return result.ToString();
+
+            // Error from JSON-RPC server
+            if (doc.RootElement.TryGetProperty("error", out var error))
+                return "❌ MCP Error: " + error.ToString();
+
+            // Unexpected format
+            return "⚠ Unexpected JSON-RPC response: " + responseLine;
+        }
     }
 }

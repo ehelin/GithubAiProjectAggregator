@@ -9,11 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AggregatorService", "Aggreg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McpClient", "McpClient\McpClient.csproj", "{C134377D-3D4F-40C7-936E-08015040015A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McpHost", "McpHost\McpHost.csproj", "{389838F0-1E6A-4C9C-BBB0-ED9BE3B8A1A7}"
-EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "McpServer", "McpServer\McpServer.pyproj", "{B024B5D9-C0E5-4570-83F2-82DB7402921A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{94064159-6955-44E8-BC33-B7181EF4B36A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McpHost", "McpHost\McpHost.csproj", "{75CF1364-B3F3-47AD-A420-3921B44A3032}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,16 +31,12 @@ Global
 		{C134377D-3D4F-40C7-936E-08015040015A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C134377D-3D4F-40C7-936E-08015040015A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C134377D-3D4F-40C7-936E-08015040015A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{389838F0-1E6A-4C9C-BBB0-ED9BE3B8A1A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{389838F0-1E6A-4C9C-BBB0-ED9BE3B8A1A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{389838F0-1E6A-4C9C-BBB0-ED9BE3B8A1A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{389838F0-1E6A-4C9C-BBB0-ED9BE3B8A1A7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B024B5D9-C0E5-4570-83F2-82DB7402921A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B024B5D9-C0E5-4570-83F2-82DB7402921A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94064159-6955-44E8-BC33-B7181EF4B36A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{94064159-6955-44E8-BC33-B7181EF4B36A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{94064159-6955-44E8-BC33-B7181EF4B36A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94064159-6955-44E8-BC33-B7181EF4B36A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75CF1364-B3F3-47AD-A420-3921B44A3032}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75CF1364-B3F3-47AD-A420-3921B44A3032}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75CF1364-B3F3-47AD-A420-3921B44A3032}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75CF1364-B3F3-47AD-A420-3921B44A3032}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
