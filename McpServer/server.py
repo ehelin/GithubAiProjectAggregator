@@ -100,7 +100,7 @@ async def main():
                     "error": f"Unknown method: {method}"
                 }
 
-            print(json.dumps(response), file=sys.stdout, flush=True)
+            print(json.dumps(response), file=sys.stderr, flush=True)
 
         except Exception as ex:
             error_response = {
@@ -108,7 +108,7 @@ async def main():
                 "id": request_id,
                 "error": str(ex)
             }
-            print(json.dumps(error_response), file=sys.stdout, flush=True)
+            print(json.dumps(error_response), file=sys.stderr, flush=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
