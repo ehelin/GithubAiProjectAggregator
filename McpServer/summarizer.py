@@ -215,7 +215,6 @@ class Summarizer:
         print("summarize_pull_requests()");
                 
         print("Pulling data...");
-        owner, repo = self._split_repo()
         pull_requests = get_pull_requests(owner, repo)
         metadata = get_repo_metadata(owner, repo)
 

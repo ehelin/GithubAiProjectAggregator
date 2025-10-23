@@ -22,7 +22,7 @@ namespace McpClient
 
             _mcpProcess = new Process();
             _mcpProcess.StartInfo.FileName = "python";                    // Or "python3"
-            _mcpProcess.StartInfo.Arguments = "mcp_server/Server.py";     // Adjust path if needed
+            _mcpProcess.StartInfo.Arguments = "McpServer/Server.py";
             _mcpProcess.StartInfo.RedirectStandardInput = true;
             _mcpProcess.StartInfo.RedirectStandardOutput = true;
             _mcpProcess.StartInfo.RedirectStandardError = true;

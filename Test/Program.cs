@@ -2,24 +2,28 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            var test = await RunMcpClient();
         }
 
-        private async static Task RunMcpClien()
+        private async static Task<int> RunMcpClient()
         {
             var client = new McpClient.McpClient();
 
             string readme = await client.SummarizeReadmeAsync("microsoft", "vscode");
-            string commits = await client.SummarizeCommitsAsync("microsoft", "vscode");
-            string issues = await client.SummarizeIssuesAsync("microsoft", "vscode");
-            string prs = await client.SummarizePullRequestsAsync("microsoft", "vscode");
-
             Console.WriteLine(readme);
+
+            string commits = await client.SummarizeCommitsAsync("microsoft", "vscode");
             Console.WriteLine(commits);
+
+            string issues = await client.SummarizeIssuesAsync("microsoft", "vscode");
             Console.WriteLine(issues);
+
+            string prs = await client.SummarizePullRequestsAsync("microsoft", "vscode");
             Console.WriteLine(prs);
+
+            return 1;
         }
     }
 }

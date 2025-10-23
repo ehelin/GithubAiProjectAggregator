@@ -1,17 +1,20 @@
-# Defines the actual MCP tools.
-class my_class(object):
-    pass
+# tools.py
+# Role: Provide a decorator to register MCP tools + store them in a registry.
 
-# 5. (Optional) tools.py
-# Role: Defines the actual MCP tools.
-# What it does:
-#   Each tool calls into one of the modules above.
+from typing import Callable, Dict, Any
 
-# Example:
+# Tool registry — MCP server uses this to register all tools at runtime
+TOOLS: Dict[str, Callable[..., Any]] = {}
 
-# def SummarizeRepoTool(repo_name: str):
-#     metadata = github_api.get_repo_metadata(repo_name)
-#     readme = metadata["readme"]
-#     return summarizer.summarize_repo(readme)
-
-
+def tool(name: str):
+    """
+    Decorator to register a function as an MCP tool.
+    Usage:
+        @tool("summarize.readme")
+        async def some_function(...):
+            ...
+    """
+    def decorator(func: Callable[..., Any]):
+        TOOLS[name] = func
+        return func
+    return decorator
