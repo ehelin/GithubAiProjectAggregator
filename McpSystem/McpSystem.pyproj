@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>39d87f57-513a-4b42-b05c-83a06b507079</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>ModelCore.py</StartupFile>
+    <StartupFile>McpHost.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -30,7 +30,7 @@
     <Compile Include="McpHost.py" />
     <Compile Include="McpSystemApi.py" />
     <Compile Include="ModelCore.py" />
-    <Compile Include="Server.py" />
+    <Compile Include="McpServer.py" />
     <Compile Include="Summarizer.py" />
     <Compile Include="Tools.py" />
   </ItemGroup>

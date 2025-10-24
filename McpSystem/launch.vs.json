@@ -5,7 +5,7 @@
       "name": "MCP Server Debug",
       "type": "python",
       "request": "launch",
-      "program": "Server.py",
+      "program": "McpServer.py",
       "cwd": "${workspaceFolder}/McpServer",
       "justMyCode": false
     }
