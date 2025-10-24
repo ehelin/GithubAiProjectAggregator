@@ -2,15 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>77d66eb4-5c9b-4468-9e16-908f5389c744</ProjectGuid>
+    <ProjectGuid>39d87f57-513a-4b42-b05c-83a06b507079</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>McpSystemApi.py</StartupFile>
+    <StartupFile>ModelCore.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>McpSystemApi</Name>
-    <RootNamespace>McpSystemApi</RootNamespace>
+    <Name>McpSystem</Name>
+    <RootNamespace>McpSystem</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,24 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DAL\GithubRepositoriesList_Repository.py" />
+    <Compile Include="DAL\Summary_Repository.py" />
+    <Compile Include="DAL\__init__.py" />
+    <Compile Include="Embeddings.py" />
+    <Compile Include="GithubApi.py" />
+    <Compile Include="McpClient.py" />
+    <Compile Include="McpHost.py" />
     <Compile Include="McpSystemApi.py" />
+    <Compile Include="ModelCore.py" />
+    <Compile Include="Server.py" />
+    <Compile Include="Summarizer.py" />
+    <Compile Include="Tools.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DAL\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="launch.vs.json" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

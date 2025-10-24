@@ -5,13 +5,7 @@ VisualStudioVersion = 17.14.36327.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{3F3B53D4-50E7-4CF7-ACD0-BE7E2BFA46B5}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "McpServer", "McpServer\McpServer.pyproj", "{B024B5D9-C0E5-4570-83F2-82DB7402921A}"
-EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "McpHost", "McpHost\McpHost.pyproj", "{5C5BCB08-0049-4643-BADB-3A8236D848F1}"
-EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "McpClient", "McpClient\McpClient.pyproj", "{0F3B1642-56CC-47F5-ACC3-E7A2F7A61F91}"
-EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "McpSystemApi", "McpSystemApi\McpSystemApi.pyproj", "{77D66EB4-5C9B-4468-9E16-908F5389C744}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "McpSystem", "McpSystem\McpSystem.pyproj", "{39D87F57-513A-4B42-B05C-83A06B507079}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,14 +17,8 @@ Global
 		{3F3B53D4-50E7-4CF7-ACD0-BE7E2BFA46B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F3B53D4-50E7-4CF7-ACD0-BE7E2BFA46B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F3B53D4-50E7-4CF7-ACD0-BE7E2BFA46B5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B024B5D9-C0E5-4570-83F2-82DB7402921A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B024B5D9-C0E5-4570-83F2-82DB7402921A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5C5BCB08-0049-4643-BADB-3A8236D848F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5C5BCB08-0049-4643-BADB-3A8236D848F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F3B1642-56CC-47F5-ACC3-E7A2F7A61F91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F3B1642-56CC-47F5-ACC3-E7A2F7A61F91}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{77D66EB4-5C9B-4468-9E16-908F5389C744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{77D66EB4-5C9B-4468-9E16-908F5389C744}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39D87F57-513A-4B42-B05C-83A06B507079}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39D87F57-513A-4B42-B05C-83A06B507079}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
