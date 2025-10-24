@@ -6,6 +6,8 @@ import asyncio
 from Summarizer import Summarizer
 from Tools import tool, TOOLS
 
+print("🚀 Server.py has started!", file=sys.stderr, flush=True)
+
 # Reuse Summarizer instance across requests
 summarizer = None
 

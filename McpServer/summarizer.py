@@ -25,13 +25,13 @@ class Summarizer:
         self.repo_name = repo_name  # format "owner/repo"
         self.repo = SummaryRepository()
         self.model = get_model_instance()        
-        # self.owner, self.repo_short = self._split_repo()
-        # self.metadata = get_repo_metadata(self.owner, self.repo_short)
 
-    # # Split "owner/repo" into ("owner", "repo")
-    # def _split_repo(self):
-    #     owner, repo = self.repo_name.split("/")
-    #     return owner, repo
+    def set_repository(self, owner: str, repo: str):
+        """
+        Optional method to set or update the repository for this Summarizer.
+        This ensures that saved summaries go to the correct folder.
+        """
+        self.repo_name = f"{owner}/{repo}"
        
     # =======================================================================
     # For provided github repository, summarize readme file
@@ -41,6 +41,7 @@ class Summarizer:
         print("sumarize_repo_readme()");
         
         print("Pulling data...");
+        self.set_repository(owner, repo)
         readme_content = get_readme(owner, repo)
         metadata = get_repo_metadata(owner, repo)
         
@@ -93,14 +94,17 @@ class Summarizer:
         print("");
         print("summarize_commits()");
         
-        print("Pulling data...");        
+        print("Pulling data...");      
+        self.set_repository(owner, repo)  
         commits = get_commits(owner, repo)
         metadata = get_repo_metadata(owner, repo)
 
         if not commits:
-            print("⚠️ No commit data available to summarize.");
-            response = "No commit data available to summarize."
-            self.repo.save_summary(self.repo_name, "commits", response)
+            print("⚠️ No commit data available to summarize.");            
+            self.repo.save_summary(self.repo_name, "commits", {
+                "metadata": metadata,
+                "summary": response
+            })
             return response
         
         print("Setting up model request and sending...");
@@ -137,7 +141,6 @@ class Summarizer:
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
         print("Saving response...");
-        # self.repo.save_summary(self.repo_name, "commits", response)
         self.repo.save_summary(self.repo_name, "commits", {
             "metadata": metadata,
             "summary": response
@@ -154,13 +157,17 @@ class Summarizer:
         print("summarize_issues()");
         
         print("Pulling data...");
+        self.set_repository(owner, repo)
         issues = get_issues(owner, repo)
         metadata = get_repo_metadata(owner, repo)
 
         if not issues:
             print("⚠️ No issues found for this repository.");
             response = "⚠️ No issues found for this repository."
-            self.repo.save_summary(self.repo_name, "issues", response)
+            self.repo.save_summary(self.repo_name, "issues", {
+                "metadata": metadata,
+                "summary": response
+            })
             return response        
         
         print("Setting up model request and sending...");
@@ -198,7 +205,6 @@ class Summarizer:
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
         print("Saving response...");
-        # self.repo.save_summary(self.repo_name, "issues", response)
         self.repo.save_summary(self.repo_name, "issues", {
             "metadata": metadata,
             "summary": response
@@ -215,13 +221,17 @@ class Summarizer:
         print("summarize_pull_requests()");
                 
         print("Pulling data...");
+        self.set_repository(owner, repo)
         pull_requests = get_pull_requests(owner, repo)
         metadata = get_repo_metadata(owner, repo)
 
         if not pull_requests:
             print("⚠️ No pull requests found for this repository.");
             response = "⚠️ No pull requests found for this repository."
-            self.repo.save_summary(self.repo_name, "pull_requests", response)
+            self.repo.save_summary(self.repo_name, "pull_requests", {
+                "metadata": metadata,
+                "summary": response
+            })
             return response
         
         print("Setting up model request and sending...");
@@ -259,7 +269,6 @@ class Summarizer:
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
         print("Saving response...");
-        # self.repo.save_summary(self.repo_name, "pull_requests", response)
         self.repo.save_summary(self.repo_name, "pull_requests", {
             "metadata": metadata,
             "summary": response
