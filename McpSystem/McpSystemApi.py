@@ -1,120 +1,171 @@
-﻿# McpSystemApi.py
-# ===========================================================
-# High-level application API that communicates with the MCP
-# system (Host + Client + Server).  Not part of the MCP core.
+﻿# ===========================================================
+# McpSystemApi.py
 # -----------------------------------------------------------
-# The C# or web layer calls this module to request summaries
-# or other AI-generated information, without dealing with
-# pipes, subprocesses, or JSON-RPC directly.
+# High-level Application API + integrated FastAPI server
+# -----------------------------------------------------------
+# - Starts and manages the MCP Host system
+# - Exposes HTTP endpoints (so C# or tools can call it)
+# - Delegates work to McpHostController for real logic
 # ===========================================================
 
 import asyncio
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
-# Import the host controller (you’ll define this class in McpHost.py)
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import uvicorn
+
 from McpHost import McpHostController
 
 
+# ===========================================================
+# 🧠 Core API class
+# ===========================================================
 class McpSystemApi:
-    """
-    Entry point for external applications (like your .NET backend).
-    Handles requests to the MCP system through the host.
-    """
+    """Application API to communicate with the MCP Host."""
 
-    def __init__(self):
-        # Manages the underlying MCP system lifecycle (client/server)
+    def __init__(self, debug: bool = False):
+        self.debug = debug
         self.host = McpHostController()
+        self._started = False
 
-    # -------------------------------------------------------
-    # 🧩 System Lifecycle Management
-    # -------------------------------------------------------
+    # -------------------------------
+    # Lifecycle
+    # -------------------------------
     async def start_system(self):
-        """
-        Ensure the MCP host (and its client/server) are running.
-        Safe to call multiple times — will no-op if already running.
-        """
-        print("[SYSTEM API] 🚀 Starting MCP system (host, client, server)...")
-        await self.host.start()
-        print("[SYSTEM API] ✅ MCP system ready.")
+        if not self._started:
+            print("[SYSTEM API] 🚀 Starting MCP system (Host + Client + Server)...")
+            await self.host.start()
+            self._started = True
+            print("[SYSTEM API] ✅ MCP system ready.")
+        else:
+            print("[SYSTEM API] 🔁 MCP system already running.")
 
     async def stop_system(self):
-        """Gracefully stop the MCP system."""
-        print("[SYSTEM API] 🛑 Stopping MCP system...")
-        await self.host.stop()
+        if self._started:
+            print("[SYSTEM API] 🛑 Stopping MCP system...")
+            await self.host.stop()
+            self._started = False
+            print("[SYSTEM API] ✅ MCP system stopped.")
+        else:
+            print("[SYSTEM API] 💤 MCP system not running.")
 
-    # -------------------------------------------------------
-    # 🧠 High-Level Summarization APIs
-    # -------------------------------------------------------
+    # -------------------------------
+    # Summarization endpoints
+    # -------------------------------
     async def summarize_repo(self, owner: str, repo: str) -> Dict[str, Any]:
-        """
-        Generate a summary of a GitHub repository's README.
-        """
         await self.start_system()
-
         request = {
             "jsonrpc": "2.0",
             "id": 1,
             "method": "summarize.readme",
-            "params": {"owner": owner, "repo": repo}
+            "params": {"owner": owner, "repo": repo},
         }
-
-        print(f"[SYSTEM API] 📨 Sending summarize_repo for {owner}/{repo}")
-        response = await self.host.send_request(request)
-        print(f"[SYSTEM API] ✅ Summary received for {owner}/{repo}")
-        return response
+        print(f"[SYSTEM API] 📨 summarize_repo({owner}/{repo})...")
+        return await self.host.send_request(request)
 
     async def summarize_commits(self, owner: str, repo: str) -> Dict[str, Any]:
         await self.start_system()
-
-        request = {
+        req = {
             "jsonrpc": "2.0",
             "id": 2,
             "method": "summarize.commits",
-            "params": {"owner": owner, "repo": repo}
+            "params": {"owner": owner, "repo": repo},
         }
-
-        print(f"[SYSTEM API] 📨 Sending summarize_commits for {owner}/{repo}")
-        return await self.host.send_request(request)
+        return await self.host.send_request(req)
 
     async def summarize_issues(self, owner: str, repo: str) -> Dict[str, Any]:
         await self.start_system()
-
-        request = {
+        req = {
             "jsonrpc": "2.0",
             "id": 3,
             "method": "summarize.issues",
-            "params": {"owner": owner, "repo": repo}
+            "params": {"owner": owner, "repo": repo},
         }
+        return await self.host.send_request(req)
 
-        print(f"[SYSTEM API] 📨 Sending summarize_issues for {owner}/{repo}")
-        return await self.host.send_request(request)
-
-    async def summarize_pull_requests(self, owner: str, repo: str) -> Dict[str, Any]:
+    async def summarize_pulls(self, owner: str, repo: str) -> Dict[str, Any]:
         await self.start_system()
-
-        request = {
+        req = {
             "jsonrpc": "2.0",
             "id": 4,
             "method": "summarize.pull_requests",
-            "params": {"owner": owner, "repo": repo}
+            "params": {"owner": owner, "repo": repo},
         }
+        return await self.host.send_request(req)
 
-        print(f"[SYSTEM API] 📨 Sending summarize_pull_requests for {owner}/{repo}")
-        return await self.host.send_request(request)
-
-    # -------------------------------------------------------
-    # 🧭 Utility / Health Methods
-    # -------------------------------------------------------
+    # -------------------------------
+    # Health check
+    # -------------------------------
     async def ping(self) -> bool:
-        """
-        Simple health check to verify that the host and server
-        are responding.
-        """
         try:
             await self.start_system()
-            request = {"jsonrpc": "2.0", "id": 99, "method": "ping", "params": {}}
-            response = await self.host.send_request(request)
-            return bool(response.get("result", {}).get("ok", False))
+            req = {"jsonrpc": "2.0", "id": 99, "method": "ping", "params": {}}
+            resp = await self.host.send_request(req)
+            ok = bool(resp.get("result", {}).get("ok", False))
+            print(f"[SYSTEM API] 🩺 Ping result: {ok}")
+            return ok
         except Exception as ex:
-            print(f"
+            print(f"[SYSTEM API] ⚠️ Ping failed: {ex}")
+            return False
+
+
+# ===========================================================
+# 🌐 Integrated FastAPI server
+# ===========================================================
+
+app = FastAPI(title="MCP System API", version="1.0.0")
+api = McpSystemApi(debug=False)
+
+class RepoRequest(BaseModel):
+    owner: str
+    repo: str
+
+
+@app.get("/ping")
+async def ping():
+    ok = await api.ping()
+    if ok:
+        return {"status": "ok"}
+    raise HTTPException(status_code=503, detail="MCP system unresponsive")
+
+
+@app.post("/summarize/readme")
+async def summarize_readme(req: RepoRequest):
+    try:
+        result = await api.summarize_repo(req.owner, req.repo)
+        return {"status": "ok", "data": result}
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@app.post("/summarize/commits")
+async def summarize_commits(req: RepoRequest):
+    try:
+        result = await api.summarize_commits(req.owner, req.repo)
+        return {"status": "ok", "data": result}
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@app.post("/summarize/issues")
+async def summarize_issues(req: RepoRequest):
+    try:
+        result = await api.summarize_issues(req.owner, req.repo)
+        return {"status": "ok", "data": result}
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+
+@app.post("/summarize/pulls")
+async def summarize_pulls(req: RepoRequest):
+    try:
+        result = await api.summarize_pulls(req.owner, req.repo)
+        return {"status": "ok", "data": result}
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+if __name__ == "__main__":
+    print("[MCP SYSTEM API] 🚀 Launching web server on http://localhost:8000")
+    uvicorn.run("McpSystemApi:app", host="0.0.0.0", port=8000, reload=False)

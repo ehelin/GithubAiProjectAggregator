@@ -80,6 +80,7 @@ class McpHostController:
         self.server_proc: Optional[asyncio.subprocess.Process] = None
         self.client_proc: Optional[asyncio.subprocess.Process] = None
         self._running = False
+        self.lock = asyncio.Lock()  # ⬅️ Add this
 
     # -------------------------------------------------------
     # Lifecycle
@@ -149,25 +150,26 @@ class McpHostController:
     # Request/Response
     # -------------------------------------------------------
     async def send_request(self, request: dict) -> dict:
-        """Send a JSON-RPC request through the MCP client subprocess."""
-        if not self.client_proc:
-            raise RuntimeError("MCP Client not running — call start() first.")
+        async with self.lock:
+            """Send a JSON-RPC request through the MCP client subprocess."""
+            if not self.client_proc:
+                raise RuntimeError("MCP Client not running — call start() first.")
 
-        json_str = json.dumps(request) + "\n"
-        print(f"[MCP HOST] 📤 Forwarding request → {json_str.strip()}")
+            json_str = json.dumps(request) + "\n"
+            print(f"[MCP HOST] 📤 Forwarding request → {json_str.strip()}")
 
-        self.client_proc.stdin.write(json_str.encode())
-        await self.client_proc.stdin.drain()
+            self.client_proc.stdin.write(json_str.encode())
+            await self.client_proc.stdin.drain()
 
-        line = await self.client_proc.stdout.readline()
-        if not line:
-            raise RuntimeError("No response from client.")
+            line = await self.client_proc.stdout.readline()
+            if not line:
+                raise RuntimeError("No response from client.")
 
-        print(f"[MCP HOST] 📥 Received: {line.decode().strip()}")
-        try:
-            return json.loads(line.decode())
-        except json.JSONDecodeError:
-            return {"error": "Invalid JSON", "raw": line.decode()}
+            print(f"[MCP HOST] 📥 Received: {line.decode().strip()}")
+            try:
+                return json.loads(line.decode())
+            except json.JSONDecodeError:
+                return {"error": "Invalid JSON", "raw": line.decode()}
 
     # -------------------------------------------------------
     # Helpers

@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>39d87f57-513a-4b42-b05c-83a06b507079</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>McpHost.py</StartupFile>
+    <StartupFile>McpSystemApi.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
