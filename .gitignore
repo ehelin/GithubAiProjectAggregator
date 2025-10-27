@@ -362,3 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /McpServer/summaries/microsoft/vscode
+/McpSystem/summaries/unknown-repo/readme_summary.json
