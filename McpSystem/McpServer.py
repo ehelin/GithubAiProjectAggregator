@@ -17,19 +17,19 @@ def get_summarizer():
 
 @tool("summarize.readme")
 async def summarize_readme(owner: str, repo: str):
-    return await get_summarizer().summarize_repo_readme(owner, repo)
+    return get_summarizer().summarize_repo_readme(owner, repo)
 
 @tool("summarize.commits")
 async def summarize_commits(owner: str, repo: str):
-    return await get_summarizer().summarize_commits(owner, repo)
+    return get_summarizer().summarize_commits(owner, repo)
 
 @tool("summarize.issues")
 async def summarize_issues(owner: str, repo: str):
-    return await get_summarizer().summarize_issues(owner, repo)
+    return get_summarizer().summarize_issues(owner, repo)
 
 @tool("summarize.pull_requests")
 async def summarize_pull_requests(owner: str, repo: str):
-    return await get_summarizer().summarize_pull_requests(owner, repo)
+    return get_summarizer().summarize_pull_requests(owner, repo)
 
 
 # ✅ UPDATED main() to support both stdin and in-process debug mode
