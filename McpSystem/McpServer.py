@@ -32,21 +32,26 @@ async def summarize_pull_requests(owner: str, repo: str):
     return get_summarizer().summarize_pull_requests(owner, repo)
 
 
-# ✅ UPDATED main() to support both stdin and in-process debug mode
+# ✅ Updated to prevent VS debugger from stopping on 'await' TypeError
 async def main(input_stream=None):
     """
-    If input_stream is None → read JSON from sys.stdin (normal MCP mode, subprocess)
-    If input_stream is an asyncio.Queue → read JSON from queue (debug mode, same process)
+    If input_stream is None → read from sys.stdin (normal MCP mode, subprocess)
+    If input_stream is an asyncio.Queue → read via queue (debug/in-process mode)
     """
     print("⚙ MCP Server running (awaiting JSON-RPC)...", file=sys.stderr, flush=True)
 
     while True:
         try:
-            # ✅ Read next JSON-RPC message
+            # ✅ Read next JSON-RPC message safely
             if input_stream is None:
                 line = await asyncio.get_event_loop().run_in_executor(None, sys.stdin.readline)
             else:
-                line = await input_stream.get()  # from McpHost queue
+                # No exception — check if .get() is async first
+                get_method = input_stream.get
+                if asyncio.iscoroutinefunction(get_method):
+                    line = await get_method()
+                else:
+                    line = get_method()
 
             if not line:
                 await asyncio.sleep(0.1)
@@ -64,7 +69,7 @@ async def main(input_stream=None):
             print(f"📩 Incoming request: {method} {params}", file=sys.stderr, flush=True)
 
             if method in TOOLS:
-                result = await TOOLS[method](**params)  # call registered functions
+                result = await TOOLS[method](**params)
                 response = {"jsonrpc": "2.0", "id": request_id, "result": result}
             else:
                 response = {
@@ -76,9 +81,8 @@ async def main(input_stream=None):
         except Exception as ex:
             response = {
                 "jsonrpc": "2.0",
-                "id": request_id,
+                "id": request_id if 'request_id' in locals() else None,
                 "error": {"code": -32000, "message": str(ex)}
             }
 
-        # ✅ Output response to stdout (so McpHost can read it)
         print(json.dumps(response), flush=True)
