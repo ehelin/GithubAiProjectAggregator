@@ -80,7 +80,8 @@ class McpHostController:
         self.server_proc: Optional[asyncio.subprocess.Process] = None
         self.client_proc: Optional[asyncio.subprocess.Process] = None
         self._running = False
-        self.lock = asyncio.Lock()  # ⬅️ Add this
+        self.lock = asyncio.Lock()
+        self.last_output: Optional[str] = None  # ⬅️ added to hold latest line
 
     # -------------------------------------------------------
     # Lifecycle
@@ -116,7 +117,7 @@ class McpHostController:
         self._running = True
         print("[MCP HOST] ✅ MCP Server and Client started.")
 
-        # Stream logs in the background
+        # ✅ Stream logs in the background (single reader per process)
         asyncio.create_task(self._stream_output(self.server_proc, "SERVER"))
         asyncio.create_task(self._stream_output(self.client_proc, "CLIENT"))
 
@@ -151,44 +152,73 @@ class McpHostController:
     # -------------------------------------------------------
     async def send_request(self, request: dict) -> dict:
         async with self.lock:
-            """Send a JSON-RPC request through the MCP client subprocess."""
             if not self.client_proc:
                 raise RuntimeError("MCP Client not running — call start() first.")
+
+            # Check if client process died
+            if self.client_proc.returncode is not None:
+                raise RuntimeError(f"MCP Client process died with code {self.client_proc.returncode}")
 
             json_str = json.dumps(request) + "\n"
             print(f"[MCP HOST] 📤 Forwarding request → {json_str.strip()}")
 
-            self.client_proc.stdin.write(json_str.encode())
-            await self.client_proc.stdin.drain()
-
-            line = await self.client_proc.stdout.readline()
-            if not line:
-                raise RuntimeError("No response from client.")
-
-            print(f"[MCP HOST] 📥 Received: {line.decode().strip()}")
             try:
-                return json.loads(line.decode())
+                self.client_proc.stdin.write(json_str.encode())
+                await self.client_proc.stdin.drain()
+            except RuntimeError as ex:
+                if "Event loop is closed" in str(ex):
+                    print("[MCP HOST] ⚠️ Debugger closed event loop; ignoring.")
+                    return {"error": "Event loop closed (debugger interference)", "hint": "Try running without debugger or use DEBUG_MODE"}
+                raise
+            except BrokenPipeError:
+                return {"error": "Client process stdin closed", "hint": "Client may have crashed - check logs"}
+
+            # Wait for response with timeout
+            max_wait = 5.0  # seconds
+            wait_interval = 0.1
+            waited = 0.0
+            initial_output = self.last_output
+
+            while waited < max_wait:
+                await asyncio.sleep(wait_interval)
+                waited += wait_interval
+
+                # Check if we got new output (different from before request)
+                if self.last_output and self.last_output != initial_output:
+                    break
+
+            if not self.last_output or self.last_output == initial_output:
+                return {"error": "Timeout waiting for response from client", "hint": "Check server/client logs"}
+
+            print(f"[MCP HOST] 📥 Received (latest): {self.last_output}")
+
+            # Check if output is an error message (not JSON)
+            if self.last_output.startswith("RuntimeError") or self.last_output.startswith("Error"):
+                return {"error": "Client error", "message": self.last_output, "hint": "Client failed to connect to server"}
+
+            try:
+                return json.loads(self.last_output)
             except json.JSONDecodeError:
-                return {"error": "Invalid JSON", "raw": line.decode()}
+                return {"error": "Invalid JSON from client", "raw": self.last_output}
+
 
     # -------------------------------------------------------
     # Helpers
     # -------------------------------------------------------
     async def _stream_output(self, proc, name):
-        """Stream process output to console and file."""
+        """Continuously read process stdout and log/store."""
         log_path = f"logs/{name.lower()}.log"
         with open(log_path, "a", encoding="utf-8") as log:
-            while True:
-                line = await proc.stdout.readline()
-                if not line:
-                    break
+            async for line in proc.stdout:
                 text = line.decode().rstrip()
+                self.last_output = text  # update shared output
                 print(f"[{name}] {text}")
                 log.write(text + "\n")
                 log.flush()
 
     def is_running(self) -> bool:
         return self._running and self.client_proc and self.server_proc
+
 
 # ===========================================================
 # 🏁 Entry Point
@@ -203,16 +233,15 @@ async def main():
 
     print("\n[MCP HOST] 🟢 Host is now running. Press Ctrl+C to stop.")
     try:
-        # Run indefinitely until manually stopped
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
         print("\n[MCP HOST] 🛑 Stop signal received. Shutting down...")
         await host.stop()
 
+
 # ------------------------------------------------
 # Testing only code start
 if __name__ == "__main__":
-    asyncio.run(main())     
+    asyncio.run(main())
 # ------------------------------------------------
-

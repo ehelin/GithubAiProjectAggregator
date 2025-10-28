@@ -10,6 +10,7 @@
 
 import asyncio
 import json
+import os
 from typing import Any, Dict
 
 from fastapi import FastAPI, HTTPException
@@ -17,6 +18,66 @@ from pydantic import BaseModel
 import uvicorn
 
 from McpHost import McpHostController
+
+# 🔧 Debug mode: True = direct calls (VS debugger friendly), False = subprocess mode
+DEBUG_MODE = os.getenv("MCP_DEBUG_MODE", "true").lower() == "true"
+
+
+# ===========================================================
+# 🧪 Debug Mode Controller (Direct Calls - No Subprocesses)
+# ===========================================================
+class McpDebugController:
+    """Debug-friendly controller that calls tools directly without subprocesses."""
+
+    def __init__(self):
+        self._started = False
+        self._summarizer = None
+
+    async def start(self):
+        if not self._started:
+            print("[DEBUG API] 🐛 Starting MCP in DEBUG mode (direct calls, no subprocesses)...")
+            # Import here to avoid circular dependency
+            from Summarizer import Summarizer
+            self._summarizer = Summarizer()
+            self._started = True
+            print("[DEBUG API] ✅ MCP DEBUG mode ready.")
+
+    async def stop(self):
+        print("[DEBUG API] 🛑 Stopping DEBUG mode...")
+        self._started = False
+
+    async def send_request(self, request: dict) -> dict:
+        """Handle request by directly calling tool methods."""
+        method = request.get("method")
+        params = request.get("params", {})
+        request_id = request.get("id", 1)
+
+        try:
+            if method == "summarize.readme":
+                result = self._summarizer.summarize_repo_readme(**params)
+            elif method == "summarize.commits":
+                result = self._summarizer.summarize_commits(**params)
+            elif method == "summarize.issues":
+                result = self._summarizer.summarize_issues(**params)
+            elif method == "summarize.pull_requests":
+                result = self._summarizer.summarize_pull_requests(**params)
+            elif method == "ping":
+                result = {"ok": True, "mode": "debug"}
+            else:
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "error": {"code": -32601, "message": f"Unknown method: {method}"}
+                }
+
+            return {"jsonrpc": "2.0", "id": request_id, "result": result}
+
+        except Exception as ex:
+            return {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32000, "message": str(ex)}
+            }
 
 
 # ===========================================================
@@ -26,8 +87,13 @@ class McpSystemApi:
     """Application API to communicate with the MCP Host."""
 
     def __init__(self, debug: bool = False):
-        self.debug = debug
-        self.host = McpHostController()
+        self.debug = debug or DEBUG_MODE
+        if self.debug:
+            print("[SYSTEM API] 🐛 Using DEBUG mode (direct calls)")
+            self.host = McpDebugController()
+        else:
+            print("[SYSTEM API] 🚀 Using PRODUCTION mode (subprocesses)")
+            self.host = McpHostController()
         self._started = False
 
     # -------------------------------
@@ -116,7 +182,7 @@ class McpSystemApi:
 # ===========================================================
 
 app = FastAPI(title="MCP System API", version="1.0.0")
-api = McpSystemApi(debug=False)
+api = McpSystemApi()  # Will auto-detect DEBUG_MODE from environment
 
 class RepoRequest(BaseModel):
     owner: str
