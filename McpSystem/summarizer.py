@@ -27,12 +27,7 @@ class Summarizer:
         self.model = get_model_instance()        
         # self.owner, self.repo_short = self._split_repo()
         # self.metadata = get_repo_metadata(self.owner, self.repo_short)
-
-    # # Split "owner/repo" into ("owner", "repo")
-    # def _split_repo(self):
-    #     owner, repo = self.repo_name.split("/")
-    #     return owner, repo
-       
+               
     # =======================================================================
     # For provided github repository, summarize readme file
     # =======================================================================
