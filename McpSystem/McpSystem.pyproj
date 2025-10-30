@@ -24,7 +24,6 @@
     <Compile Include="DAL\GithubRepositoriesList_Repository.py" />
     <Compile Include="DAL\Summary_Repository.py" />
     <Compile Include="DAL\__init__.py" />
-    <Compile Include="Embeddings.py" />
     <Compile Include="GithubApi.py" />
     <Compile Include="McpClient.py" />
     <Compile Include="McpHost.py" />

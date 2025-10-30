@@ -94,7 +94,6 @@ async def main():
         else:
             raise
 
-
 async def main_fallback():
     """Fallback mode for debugger compatibility - simpler I/O without pipes."""
     print("🟢 MCP Client fallback mode active...", file=sys.stderr, flush=True)
@@ -117,7 +116,6 @@ async def main_fallback():
         except Exception as e:
             print(json.dumps({"error": f"Fallback mode error: {str(e)}"}), flush=True)
             await asyncio.sleep(0.2)
-
 
 if __name__ == "__main__":
     try:

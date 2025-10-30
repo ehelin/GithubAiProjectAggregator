@@ -79,13 +79,10 @@ class McpDebugController:
                 "error": {"code": -32000, "message": str(ex)}
             }
 
-
 # ===========================================================
 # 🧠 Core API class
 # ===========================================================
 class McpSystemApi:
-    """Application API to communicate with the MCP Host."""
-
     def __init__(self, debug: bool = False):
         self.debug = debug or DEBUG_MODE
         if self.debug:
@@ -96,9 +93,6 @@ class McpSystemApi:
             self.host = McpHostController()
         self._started = False
 
-    # -------------------------------
-    # Lifecycle
-    # -------------------------------
     async def start_system(self):
         if not self._started:
             print("[SYSTEM API] 🚀 Starting MCP system (Host + Client + Server)...")
@@ -117,9 +111,6 @@ class McpSystemApi:
         else:
             print("[SYSTEM API] 💤 MCP system not running.")
 
-    # -------------------------------
-    # Summarization endpoints
-    # -------------------------------
     async def summarize_repo(self, owner: str, repo: str) -> Dict[str, Any]:
         await self.start_system()
         request = {
@@ -161,9 +152,6 @@ class McpSystemApi:
         }
         return await self.host.send_request(req)
 
-    # -------------------------------
-    # Health check
-    # -------------------------------
     async def ping(self) -> bool:
         try:
             await self.start_system()
@@ -188,15 +176,6 @@ class RepoRequest(BaseModel):
     owner: str
     repo: str
 
-
-@app.get("/ping")
-async def ping():
-    ok = await api.ping()
-    if ok:
-        return {"status": "ok"}
-    raise HTTPException(status_code=503, detail="MCP system unresponsive")
-
-
 @app.post("/summarize/readme")
 async def summarize_readme(req: RepoRequest):
     try:
@@ -204,7 +183,6 @@ async def summarize_readme(req: RepoRequest):
         return {"status": "ok", "data": result}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
-
 
 @app.post("/summarize/commits")
 async def summarize_commits(req: RepoRequest):
@@ -214,6 +192,12 @@ async def summarize_commits(req: RepoRequest):
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
 
+@app.get("/ping")
+async def ping():
+    ok = await api.ping()
+    if ok:
+        return {"status": "ok"}
+    raise HTTPException(status_code=503, detail="MCP system unresponsive")
 
 @app.post("/summarize/issues")
 async def summarize_issues(req: RepoRequest):
@@ -222,7 +206,6 @@ async def summarize_issues(req: RepoRequest):
         return {"status": "ok", "data": result}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
-
 
 @app.post("/summarize/pulls")
 async def summarize_pulls(req: RepoRequest):

@@ -40,8 +40,6 @@ def _make_request(endpoint: str):
         raise Exception(f"GitHub API Error {response.status_code}: {response.text}")
     return response.json()
 
-
-# ✅ 1. Get README.md content (decoded to plain text)
 def get_readme(owner: str, repo: str) -> str:
     data = _make_request(f"/repos/{owner}/{repo}/readme")
 
@@ -50,8 +48,6 @@ def get_readme(owner: str, repo: str) -> str:
     else:
         return "(No README found for this repository)"
 
-
-# ✅ 2. Get latest commit messages
 def get_commits(owner: str, repo: str, limit: int = 10) -> list[str]:
     data = _make_request(f"/repos/{owner}/{repo}/commits")
 
@@ -61,8 +57,6 @@ def get_commits(owner: str, repo: str, limit: int = 10) -> list[str]:
         commits.append(message)
     return commits
 
-
-# ✅ 3. Get open issues (title + body)
 def get_issues(owner: str, repo: str, limit: int = 10) -> list[str]:
     data = _make_request(f"/repos/{owner}/{repo}/issues")
 
@@ -76,8 +70,6 @@ def get_issues(owner: str, repo: str, limit: int = 10) -> list[str]:
         issues.append(f"{title} - {body[:100]}")  # Truncate body for prompt safety
     return issues
 
-
-# ✅ 4. Get open pull requests (title + description)
 def get_pull_requests(owner: str, repo: str, limit: int = 10) -> list[str]:
     data = _make_request(f"/repos/{owner}/{repo}/pulls")
 
