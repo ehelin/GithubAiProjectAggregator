@@ -174,7 +174,8 @@ class McpHostController:
                 return {"error": "Client process stdin closed", "hint": "Client may have crashed - check logs"}
 
             # Wait for response with timeout
-            max_wait = 5.0  # seconds
+            # max_wait = 5.0  # seconds
+            max_wait = 300.0  # 5 minutes
             wait_interval = 0.1
             waited = 0.0
             initial_output = self.last_output

@@ -234,4 +234,8 @@ async def summarize_pulls(req: RepoRequest):
 
 if __name__ == "__main__":
     print("[MCP SYSTEM API] 🚀 Launching web server on http://localhost:8000")
-    uvicorn.run("McpSystemApi:app", host="0.0.0.0", port=8000, reload=False)
+    uvicorn.run("McpSystemApi:app", 
+                host="0.0.0.0", 
+                port=8000, 
+                timeout_keep_alive=600,   # Keep connection alive 10 minutes
+                reload=False)
