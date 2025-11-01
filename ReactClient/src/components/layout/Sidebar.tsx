@@ -15,9 +15,6 @@ const Sidebar: FC = () =>
                     <li>
                         <Link to="/dashboard">Summary Dashboard</Link>
                     </li>
-                    <li>
-                        <Link to="/history">History</Link>
-                    </li>
                 </ul>
             </nav>
         </aside>

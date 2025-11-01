@@ -147,6 +147,37 @@ class McpHostController:
         await self.stop()
         await self.start()
 
+    async def list_summaries(self):
+        base = os.path.join(os.path.dirname(__file__), "summaries")
+        result = []
+
+        if not os.path.exists(base):
+            return result
+
+        for owner in os.listdir(base):
+            owner_path = os.path.join(base, owner)
+            if not os.path.isdir(owner_path):
+                continue
+
+            for repo in os.listdir(owner_path):
+                repo_path = os.path.join(owner_path, repo)
+                if not os.path.isdir(repo_path):
+                    continue
+
+                for filename in os.listdir(repo_path):
+                    if filename.endswith(".json"):
+                        mode = filename[:-5]
+                        result.append({"owner": owner, "repo": repo, "mode": mode})
+
+        return result
+
+    async def load_summary(self, owner: str, repo: str, mode: str):
+        path = os.path.join(os.path.dirname(__file__), "summaries", owner, repo, f"{mode}.json")
+        if not os.path.exists(path):
+            return None
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
     # -------------------------------------------------------
     # Request/Response
     # -------------------------------------------------------
@@ -202,7 +233,6 @@ class McpHostController:
             except json.JSONDecodeError:
                 return {"error": "Invalid JSON from client", "raw": self.last_output}
 
-
     # -------------------------------------------------------
     # Helpers
     # -------------------------------------------------------
@@ -219,7 +249,6 @@ class McpHostController:
 
     def is_running(self) -> bool:
         return self._running and self.client_proc and self.server_proc
-
 
 # ===========================================================
 # 🏁 Entry Point

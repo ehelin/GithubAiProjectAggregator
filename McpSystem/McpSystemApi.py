@@ -12,6 +12,8 @@ import asyncio
 import json
 import os
 import uvicorn
+import os
+import json
 
 from typing import Any, Dict
 from fastapi import FastAPI, HTTPException
@@ -20,7 +22,7 @@ from McpHost import McpHostController
 from fastapi.middleware.cors import CORSMiddleware
 
 # 🔧 Debug mode: True = direct calls (VS debugger friendly), False = subprocess mode
-DEBUG_MODE = os.getenv("MCP_DEBUG_MODE", "true").lower() == "true"
+DEBUG_MODE = False # os.getenv("MCP_DEBUG_MODE", "true").lower() == "true"
 
 
 # ===========================================================
@@ -164,7 +166,6 @@ class McpSystemApi:
             print(f"[SYSTEM API] ⚠️ Ping failed: {ex}")
             return False
 
-
 # ===========================================================
 # 🌐 Integrated FastAPI server
 # ===========================================================
@@ -184,6 +185,45 @@ class RepoRequest(BaseModel):
     owner: str
     repo: str
 
+# ---- Cached Summary Endpoints (placeholders only) ----
+@app.get("/summaries")
+async def list_summaries():
+    try:
+        result = await api.host.list_summaries()
+        return {"status": "ok", "data": result}
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+@app.get("/summary/{owner}/{repo}/{mode}")
+async def get_summary(owner: str, repo: str, mode: str):
+    try:
+        result = await api.host.load_summary(owner, repo, mode)
+        if result is None:
+            return {"status": "not_found"}
+        return {"status": "ok", "data": result}
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
+@app.post("/summarize/{mode}")
+async def summarize_repo(mode: str, req: RepoRequest):
+    owner = req.owner
+    repo = req.repo
+
+    try:
+        # 1) Only load existing summary
+        existing = await api.host.load_summary(owner, repo, mode)
+        if existing is not None:
+            return {"status": "ok", "data": existing}
+
+        # 2) Do NOT compute. User must go to AnalyzeRepo and explicitly run summarize.
+        return {
+            "status": "not_found",
+            "detail": "No summary exists. Use Analyze to create one."
+        }
+
+    except Exception as ex:
+        raise HTTPException(status_code=500, detail=str(ex))
+
 @app.post("/summarize/readme")
 async def summarize_readme(req: RepoRequest):
     try:
@@ -199,13 +239,6 @@ async def summarize_commits(req: RepoRequest):
         return {"status": "ok", "data": result}
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
-
-@app.get("/ping")
-async def ping():
-    ok = await api.ping()
-    if ok:
-        return {"status": "ok"}
-    raise HTTPException(status_code=503, detail="MCP system unresponsive")
 
 @app.post("/summarize/issues")
 async def summarize_issues(req: RepoRequest):

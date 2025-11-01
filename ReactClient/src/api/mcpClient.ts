@@ -16,6 +16,7 @@ export interface SummaryResponse
     data: any;
 }
 
+// Summarize API methods
 export async function summarizeReadme(
     owner: string,
     repo: string
@@ -48,6 +49,21 @@ export async function summarizePullRequests(
 ): Promise<SummaryResponse>
 {
     return await postSummary('summarize/pulls', owner, repo);
+}
+
+// summary API methods
+export async function listSummaries()
+{
+    const res = await fetch(`${API_BASE}/summaries`);
+    const json = await res.json();
+    return json;
+}
+
+export async function loadSummary(owner: string, repo: string, mode: string)
+{
+    const res = await fetch(`${API_BASE}/summary/${owner}/${repo}/${mode}`);
+    const json = await res.json();
+    return json;
 }
 
 async function postSummary(

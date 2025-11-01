@@ -7,7 +7,6 @@ import Header from "./components/layout/Header";
 
 import AnalyzeRepo from "./pages/AnalyzeRepo";
 import Dashboard from "./pages/Dashboard";
-import History from "./pages/History";
 
 const App = () =>
 {
@@ -23,7 +22,6 @@ const App = () =>
                         <Routes>
                             <Route path="/analyze" element={<AnalyzeRepo />} />
                             <Route path="/dashboard" element={<Dashboard />} />
-                            <Route path="/history" element={<History />} />
 
                             {/* Default redirect */}
                             <Route path="*" element={<Navigate to="/analyze" replace />} />
