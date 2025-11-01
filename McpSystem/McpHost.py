@@ -42,13 +42,13 @@ async def send_rpc(method: str, params: dict, request_id: int = 1):
 
 async def run_server_in_process():
     """Run the MCP server (McpServer.py) in the same process for debugging."""
-    print("[MCP HOST] 🟢 Starting MCP Server in debug mode (same process, no subprocess).")
+    print("[MCP HOST] 🟢 Starting MCP Server in debug mode (same process, no subprocess).", flush=True)
     await server_main(input_stream=message_queue)  # McpServer.main must accept input_stream
 
 
 async def run_debug_mode():
     """Run the debug mode — single process, interactive."""
-    print("[MCP HOST] ✅ Debug mode started — server + client in one process")
+    print("[MCP HOST] ✅ Debug mode started — server + client in one process", flush=True)
 
     # 1. Start the in-process server
     asyncio.create_task(run_server_in_process())
@@ -63,7 +63,7 @@ async def run_debug_mode():
         request_id=1
     )
 
-    print("\n[MCP HOST] ✅ Request sent. Server logs should reflect handling activity.")
+    print("\n[MCP HOST] ✅ Request sent. Server logs should reflect handling activity.", flush=True)
 
 
 # ===========================================================
@@ -89,10 +89,10 @@ class McpHostController:
     async def start(self):
         """Start the MCP server and client subprocesses."""
         if self._running:
-            print("[MCP HOST] 🔁 Already running.")
+            print("[MCP HOST] 🔁 Already running.", flush=True)
             return
 
-        print("[MCP HOST] 🚀 Starting MCP system (multi-process)...")
+        print("[MCP HOST] 🚀 Starting MCP system (multi-process)...", flush=True)
 
         os.makedirs("logs", exist_ok=True)
 
@@ -115,7 +115,7 @@ class McpHostController:
         )
 
         self._running = True
-        print("[MCP HOST] ✅ MCP Server and Client started.")
+        print("[MCP HOST] ✅ MCP Server and Client started.", flush=True)
 
         # ✅ Stream logs in the background (single reader per process)
         asyncio.create_task(self._stream_output(self.server_proc, "SERVER"))
@@ -124,10 +124,10 @@ class McpHostController:
     async def stop(self):
         """Stop both MCP processes."""
         if not self._running:
-            print("[MCP HOST] 💤 Nothing to stop.")
+            print("[MCP HOST] 💤 Nothing to stop.", flush=True)
             return
 
-        print("[MCP HOST] 🛑 Stopping MCP system...")
+        print("[MCP HOST] 🛑 Stopping MCP system...", flush=True)
         for proc, name in [(self.client_proc, "CLIENT"), (self.server_proc, "SERVER")]:
             if proc and proc.returncode is None:
                 proc.terminate()
@@ -140,7 +140,7 @@ class McpHostController:
         self.server_proc = None
         self.client_proc = None
         self._running = False
-        print("[MCP HOST] ✅ MCP system stopped.")
+        print("[MCP HOST] ✅ MCP system stopped.", flush=True)
 
     async def restart(self):
         """Restart both processes."""
@@ -167,7 +167,7 @@ class McpHostController:
                 await self.client_proc.stdin.drain()
             except RuntimeError as ex:
                 if "Event loop is closed" in str(ex):
-                    print("[MCP HOST] ⚠️ Debugger closed event loop; ignoring.")
+                    print("[MCP HOST] ⚠️ Debugger closed event loop; ignoring.", flush=True)
                     return {"error": "Event loop closed (debugger interference)", "hint": "Try running without debugger or use DEBUG_MODE"}
                 raise
             except BrokenPipeError:
@@ -232,12 +232,12 @@ async def main():
     host = McpHostController()
     await host.start()
 
-    print("\n[MCP HOST] 🟢 Host is now running. Press Ctrl+C to stop.")
+    print("\n[MCP HOST] 🟢 Host is now running. Press Ctrl+C to stop.", flush=True)
     try:
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\n[MCP HOST] 🛑 Stop signal received. Shutting down...")
+        print("\n[MCP HOST] 🛑 Stop signal received. Shutting down...", flush=True)
         await host.stop()
 
 

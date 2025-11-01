@@ -2,6 +2,7 @@
 import type { SummaryResponse } from "../api/mcpClient";
 import type { FC } from "react";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import
     {
         summarizeReadme,
@@ -16,7 +17,8 @@ const AnalyzeRepo: FC = () =>
     const [repo, setRepo] = useState("");
 
     // which summary type the user wants
-    const [mode, setMode] = useState<"readme" | "commits" | "issues" | "pulls">("readme");
+    const [searchParams, setSearchParams] = useSearchParams();
+    const mode = (searchParams.get("mode") as "readme" | "commits" | "issues" | "pulls") ?? "readme";
 
     // holds returned summary data
     const [result, setResult] = useState<SummaryResponse | null>(null);
@@ -70,11 +72,29 @@ const AnalyzeRepo: FC = () =>
             </div>
 
             {/* Mode Tabs */}
-            <div style={{ marginTop: "1rem" }}>
-                <button onClick={() => setMode("readme")}>README</button>
-                <button onClick={() => setMode("commits")}>COMMITS</button>
-                <button onClick={() => setMode("issues")}>ISSUES</button>
-                <button onClick={() => setMode("pulls")}>PRS</button>
+            <div style={{ marginTop: "1rem", display: "flex", gap: "0.5rem" }}>
+                {[
+                    { id: "readme", label: "README" },
+                    { id: "commits", label: "COMMITS" },
+                    { id: "issues", label: "ISSUES" },
+                    { id: "pulls", label: "PRS" }
+                ].map(t => (
+                    <button
+                        key={t.id}
+                        onClick={() => setSearchParams({ mode: t.id, owner, repo })}
+                        style={{
+                            padding: "0.5rem 1rem",
+                            borderRadius: "6px",
+                            border: "1px solid #ccc",
+                            fontWeight: mode === t.id ? "bold" : "normal",
+                            background: mode === t.id ? "#e5e7eb" : "#f9fafb",
+                            boxShadow: mode === t.id ? "0 0 0 2px #3b82f6 inset" : "none",
+                            cursor: "pointer"
+                        }}
+                    >
+                        {t.label}
+                    </button>
+                ))}
             </div>
 
             {/* Analyze Action */}
@@ -83,11 +103,21 @@ const AnalyzeRepo: FC = () =>
             </div>
 
             {/* Result Display */}
-            {result && (
-                <pre style={{ marginTop: "2rem", whiteSpace: "pre-wrap" }}>
-                    {JSON.stringify(result.data, null, 2)}
-                </pre>
-            )}
+            {result ? (
+                <div style={{
+                    marginTop: "1rem",
+                    background: "#fff",
+                    padding: "1rem",
+                    borderRadius: 8,
+                    boxShadow: "0 1px 4px rgba(0,0,0,.08)",
+                    maxHeight: "50vh",
+                    overflow: "auto"
+                }}>
+                    <pre style={{ whiteSpace: "pre-wrap", margin: 0 }}>
+                        {JSON.stringify((result.data as any).result ?? result.data, null, 2)}
+                    </pre>
+                </div>
+            ) : null}
         </div>
     );
 };

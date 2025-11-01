@@ -11,13 +11,13 @@
 import asyncio
 import json
 import os
-from typing import Any, Dict
-
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 import uvicorn
 
+from typing import Any, Dict
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from McpHost import McpHostController
+from fastapi.middleware.cors import CORSMiddleware
 
 # 🔧 Debug mode: True = direct calls (VS debugger friendly), False = subprocess mode
 DEBUG_MODE = os.getenv("MCP_DEBUG_MODE", "true").lower() == "true"
@@ -35,15 +35,15 @@ class McpDebugController:
 
     async def start(self):
         if not self._started:
-            print("[DEBUG API] 🐛 Starting MCP in DEBUG mode (direct calls, no subprocesses)...")
+            print("[DEBUG API] 🐛 Starting MCP in DEBUG mode (direct calls, no subprocesses)...", flush=True)
             # Import here to avoid circular dependency
             from Summarizer import Summarizer
             self._summarizer = Summarizer()
             self._started = True
-            print("[DEBUG API] ✅ MCP DEBUG mode ready.")
+            print("[DEBUG API] ✅ MCP DEBUG mode ready.", flush=True)
 
     async def stop(self):
-        print("[DEBUG API] 🛑 Stopping DEBUG mode...")
+        print("[DEBUG API] 🛑 Stopping DEBUG mode...", flush=True)
         self._started = False
 
     async def send_request(self, request: dict) -> dict:
@@ -86,30 +86,30 @@ class McpSystemApi:
     def __init__(self, debug: bool = False):
         self.debug = debug or DEBUG_MODE
         if self.debug:
-            print("[SYSTEM API] 🐛 Using DEBUG mode (direct calls)")
+            print("[SYSTEM API] 🐛 Using DEBUG mode (direct calls)", flush=True)
             self.host = McpDebugController()
         else:
-            print("[SYSTEM API] 🚀 Using PRODUCTION mode (subprocesses)")
+            print("[SYSTEM API] 🚀 Using PRODUCTION mode (subprocesses)", flush=True)
             self.host = McpHostController()
         self._started = False
 
     async def start_system(self):
         if not self._started:
-            print("[SYSTEM API] 🚀 Starting MCP system (Host + Client + Server)...")
+            print("[SYSTEM API] 🚀 Starting MCP system (Host + Client + Server)...", flush=True)
             await self.host.start()
             self._started = True
-            print("[SYSTEM API] ✅ MCP system ready.")
+            print("[SYSTEM API] ✅ MCP system ready.", flush=True)
         else:
-            print("[SYSTEM API] 🔁 MCP system already running.")
+            print("[SYSTEM API] 🔁 MCP system already running.", flush=True)
 
     async def stop_system(self):
         if self._started:
-            print("[SYSTEM API] 🛑 Stopping MCP system...")
+            print("[SYSTEM API] 🛑 Stopping MCP system...", flush=True)
             await self.host.stop()
             self._started = False
-            print("[SYSTEM API] ✅ MCP system stopped.")
+            print("[SYSTEM API] ✅ MCP system stopped.", flush=True)
         else:
-            print("[SYSTEM API] 💤 MCP system not running.")
+            print("[SYSTEM API] 💤 MCP system not running.", flush=True)
 
     async def summarize_repo(self, owner: str, repo: str) -> Dict[str, Any]:
         await self.start_system()
@@ -170,6 +170,14 @@ class McpSystemApi:
 # ===========================================================
 
 app = FastAPI(title="MCP System API", version="1.0.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],      # or ["http://localhost:63641"] to be strict
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 api = McpSystemApi()  # Will auto-detect DEBUG_MODE from environment
 
 class RepoRequest(BaseModel):
@@ -216,7 +224,7 @@ async def summarize_pulls(req: RepoRequest):
         raise HTTPException(status_code=500, detail=str(ex))
 
 if __name__ == "__main__":
-    print("[MCP SYSTEM API] 🚀 Launching web server on http://localhost:8000")
+    print("[MCP SYSTEM API] 🚀 Launching web server on http://localhost:8000", flush=True)
     uvicorn.run("McpSystemApi:app", 
                 host="0.0.0.0", 
                 port=8000, 

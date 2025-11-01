@@ -14,7 +14,7 @@ model_core = get_model_instance()
 def get_core():
     global model_core
     if model_core is None:
-        print("Initializing AI Model...")
+        print("Initializing AI Model...", flush=True)
         model_core = get_model_instance()
     return model_core
 
@@ -25,6 +25,7 @@ class Summarizer:
         self.repo_name = repo_name  # format "owner/repo"
         self.repo = SummaryRepository()
         self.model = get_model_instance()        
+
         # self.owner, self.repo_short = self._split_repo()
         # self.metadata = get_repo_metadata(self.owner, self.repo_short)
                
@@ -32,14 +33,15 @@ class Summarizer:
     # For provided github repository, summarize readme file
     # =======================================================================
     def summarize_repo_readme(self, owner: str, repo: str) -> str:
-        print("");
-        print("sumarize_repo_readme()");
+        print("", flush=True);
+        print("sumarize_repo_readme()", flush=True);
         
-        print("Pulling data...");
+        print("Pulling data...", flush=True);
+        self.repo_name = f"{owner}/{repo}"  
         readme_content = get_readme(owner, repo)
         metadata = get_repo_metadata(owner, repo)
         
-        print("Setting up model request and sending...");
+        print("Setting up model request and sending...", flush=True);
         system_prompt = (
             "You are an expert software analyst. Your goal is to evaluate a GitHub repository and determine "
             "whether it is valuable to a potential user or contributor. Do NOT copy the README content. "
@@ -72,33 +74,34 @@ class Summarizer:
         full_prompt = f"<|system|>\n{system_prompt}\n<|user|>\n{user_prompt}\n<|assistant|>"
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
-        print("Saving response...");
+        print("Saving response...", flush=True);
         self.repo.save_summary(self.repo_name, "readme", {
             "metadata": metadata,
             "summary": response
         })
         
-        print("Returning response!");
+        print("Returning response!", flush=True);
         return response
                 
     # =======================================================================
     # For provided github repository, summarize latest commits
     # =======================================================================
     def summarize_commits(self, owner: str, repo: str) -> str:
-        print("");
-        print("summarize_commits()");
+        print("", flush=True);
+        print("summarize_commits()", flush=True);
         
-        print("Pulling data...");        
+        print("Pulling data...", flush=True);     
+        self.repo_name = f"{owner}/{repo}"     
         commits = get_commits(owner, repo)
         metadata = get_repo_metadata(owner, repo)
 
         if not commits:
-            print("⚠️ No commit data available to summarize.");
+            print("⚠️ No commit data available to summarize.", flush=True);
             response = "No commit data available to summarize."
             self.repo.save_summary(self.repo_name, "commits", response)
             return response
         
-        print("Setting up model request and sending...");
+        print("Setting up model request and sending...", flush=True);
         formatted_commits = "\n".join([f"- {msg}" for msg in commits])
         system_prompt = (
             "You are a technical AI that summarizes GitHub repository activity clearly and accurately."
@@ -131,34 +134,35 @@ class Summarizer:
         full_prompt = f"<|system|>\n{system_prompt}\n<|user|>\n{user_prompt}\n<|assistant|>"
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
-        print("Saving response...");
+        print("Saving response...", flush=True);
         # self.repo.save_summary(self.repo_name, "commits", response)
         self.repo.save_summary(self.repo_name, "commits", {
             "metadata": metadata,
             "summary": response
         })
         
-        print("Returning response!");
+        print("Returning response!", flush=True);
         return response
         
     # =======================================================================
     # For provided github repository, summarize latest issues
     # =======================================================================
     def summarize_issues(self, owner: str, repo: str) -> str:
-        print("");
-        print("summarize_issues()");
+        print("", flush=True);
+        print("summarize_issues()", flush=True);
         
-        print("Pulling data...");
+        print("Pulling data...", flush=True);
+        self.repo_name = f"{owner}/{repo}"  
         issues = get_issues(owner, repo)
         metadata = get_repo_metadata(owner, repo)
 
         if not issues:
-            print("⚠️ No issues found for this repository.");
+            print("⚠️ No issues found for this repository.", flush=True);
             response = "⚠️ No issues found for this repository."
             self.repo.save_summary(self.repo_name, "issues", response)
             return response        
         
-        print("Setting up model request and sending...");
+        print("Setting up model request and sending...", flush=True);
         formatted_issues = "\n".join([f"- {issue}" for issue in issues])
         system_prompt = (
             "You are a helpful AI system that analyzes GitHub issues "
@@ -192,34 +196,35 @@ class Summarizer:
         full_prompt = f"<|system|>\n{system_prompt}\n<|user|>\n{user_prompt}\n<|assistant|>"
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
-        print("Saving response...");
+        print("Saving response...", flush=True);
         # self.repo.save_summary(self.repo_name, "issues", response)
         self.repo.save_summary(self.repo_name, "issues", {
             "metadata": metadata,
             "summary": response
         })
     
-        print("Returning response!");
+        print("Returning response!", flush=True);
         return response
         
     # =======================================================================
     # For provided github repository, summarize latest pull requests
     # =======================================================================
     def summarize_pull_requests(self, owner: str, repo: str) -> str:
-        print("");
-        print("summarize_pull_requests()");
+        print("", flush=True);
+        print("summarize_pull_requests()", flush=True);
                 
-        print("Pulling data...");
+        print("Pulling data...", flush=True);
+        self.repo_name = f"{owner}/{repo}"  
         pull_requests = get_pull_requests(owner, repo)
         metadata = get_repo_metadata(owner, repo)
 
         if not pull_requests:
-            print("⚠️ No pull requests found for this repository.");
+            print("⚠️ No pull requests found for this repository.", flush=True);
             response = "⚠️ No pull requests found for this repository."
             self.repo.save_summary(self.repo_name, "pull_requests", response)
             return response
         
-        print("Setting up model request and sending...");
+        print("Setting up model request and sending...", flush=True);
         formatted_prs = "\n".join([f"- {pr}" for pr in pull_requests])
         system_prompt = (
             "You are an expert AI that summarizes GitHub pull requests "
@@ -253,14 +258,14 @@ class Summarizer:
         full_prompt = f"<|system|>\n{system_prompt}\n<|user|>\n{user_prompt}\n<|assistant|>"
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
-        print("Saving response...");
+        print("Saving response...", flush=True);
         # self.repo.save_summary(self.repo_name, "pull_requests", response)
         self.repo.save_summary(self.repo_name, "pull_requests", {
             "metadata": metadata,
             "summary": response
         })
         
-        print("Returning response!");
+        print("Returning response!", flush=True);
         return response
     
     # =======================================================================
@@ -276,19 +281,19 @@ class Summarizer:
             data = json.load(f)
 
         summary_text = data.get("summary", None)
-        print("\n======= SUMMARY TEXT =======\n")
+        print("\n======= SUMMARY TEXT =======\n", flush=True)
         print(summary_text if summary_text else "⚠️ No summary text available")
-        print("\n============================\n")
+        print("\n============================\n", flush=True)
 
         return summary_text  # Optional — remove this if you don’t want to return anything
 
 # local test run entry point
 if __name__ == "__main__":
-    print("🧠 Starting Summarizer")
+    print("🧠 Starting Summarizer", flush=True)
 
     repos = get_repositories()
     for repo_name in repos:
-        print(f"\n🚀 Processing {repo_name}\n")
+        print(f"\n🚀 Processing {repo_name}\n", flush=True)
         s = Summarizer(repo_name)
 
         s.summarize_repo_readme()

@@ -80,8 +80,8 @@ class ModelCore:
         # Ensure model exists locally (download if missing)
         # --------------------------------------------
         if not os.path.exists(model_dir):
-            print(f"Model not found in local cache at: {model_dir}")
-            print("Downloading verified model from Hugging Face (once)...")
+            print(f"Model not found in local cache at: {model_dir}", flush=True)
+            print("Downloading verified model from Hugging Face (once)...", flush=True)
 
             snapshot_download(
                 repo_id=self.model_name,
@@ -90,20 +90,20 @@ class ModelCore:
                 allow_patterns=["*.bin", "*.json", "*.safetensors", "*.model"],
                 resume_download=True,
             )
-            print("Model download completed.\n")
+            print("Model download completed.\n", flush=True)
         else:
-            print(f"✅ Model already cached at: {model_dir}\n")
+            print(f"✅ Model already cached at: {model_dir}\n", flush=True)
 
         # --------------------------------------------
         # Load tokenizer and model
         # --------------------------------------------
-        print("Loading tokenizer...")
+        print("Loading tokenizer...", flush=True)
         self.tokenizer = AutoTokenizer.from_pretrained(
             model_dir,
             trust_remote_code=trust_remote
         )
 
-        print("Loading base model (this may take a moment)...")
+        print("Loading base model (this may take a moment)...", flush=True)
         self.model = AutoModelForCausalLM.from_pretrained(
             model_dir,
             trust_remote_code=trust_remote,
@@ -120,14 +120,14 @@ class ModelCore:
             and os.path.exists(self.adapter_path)
             and self.adapter_path.startswith("./")
         ):
-            print(f"Loading LoRA adapters from {self.adapter_path}...")
+            print(f"Loading LoRA adapters from {self.adapter_path}...", flush=True)
             self.model = PeftModel.from_pretrained(self.model, self.adapter_path)
-            print("Adapters loaded successfully.")
+            print("Adapters loaded successfully.", flush=True)
         else:
-            print("Skipping adapter load for safety or missing path.")
+            print("Skipping adapter load for safety or missing path.", flush=True)
 
         elapsed = time.time() - start_time
-        print(f"✅ Model ready (loaded in {elapsed:.2f} seconds)\n")
+        print(f"✅ Model ready (loaded in {elapsed:.2f} seconds)\n", flush=True)
 
     # ModelCore.py  (replace your generate_response with this)
     def generate_response(self, prompt: str, max_new_tokens: int = 400, temperature: float = 0.3) -> str:
@@ -164,8 +164,8 @@ def reset_model_instance():
 # ------------------------------------------------
 # Testing only code start
 if __name__ == "__main__":
-    print("🧠 Starting local Summarizer test (safe mode ON)\n")
-    print("Type your prompt and press Enter. Type 'exit' or 'quit' to stop.\n")
+    print("🧠 Starting local Summarizer test (safe mode ON)\n", flush=True)
+    print("Type your prompt and press Enter. Type 'exit' or 'quit' to stop.\n", flush=True)
 
     s = ModelCore(safe_mode=True)
 
@@ -173,17 +173,17 @@ if __name__ == "__main__":
         try:
             user_input = input(">>> ").strip()
             if user_input.lower() in {"exit", "quit"}:
-                print("Exiting Summarizer. Goodbye!")
+                print("Exiting Summarizer. Goodbye!", flush=True)
                 break
             if not user_input:
                 continue  # skip empty input
             response = s.generate_response(prompt=user_input, max_new_tokens=400, temperature=0.3)
-            print("\n--- Model Response ---\n")
-            print(response)
-            print("\n----------------------\n")
+            print("\n--- Model Response ---\n", flush=True)
+            print(response, flush=True)
+            print("\n----------------------\n", flush=True)
         except KeyboardInterrupt:
-            print("\nInterrupted. Exiting Summarizer.")
+            print("\nInterrupted. Exiting Summarizer.", flush=True)
             break
         except Exception as e:
-            print(f"\n[Error] {type(e).__name__}: {e}\n")            
+            print(f"\n[Error] {type(e).__name__}: {e}\n", flush=True)            
 # ------------------------------------------------
