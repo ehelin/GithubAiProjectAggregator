@@ -2,11 +2,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "MCP Server Debug",
+      "name": "MCP System API Debug",
       "type": "python",
       "request": "launch",
-      "program": "McpServer.py",
-      "cwd": "${workspaceFolder}/McpServer",
+      "program": "McpSystemApi.py",
+      "cwd": "${workspaceFolder}/McpSystem",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/McpSystem"
+      },
       "justMyCode": false
     }
   ]

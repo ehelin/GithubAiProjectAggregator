@@ -5,8 +5,7 @@
     <ProjectGuid>39d87f57-513a-4b42-b05c-83a06b507079</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>McpSystemApi.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>.</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>McpSystem</Name>
@@ -28,10 +27,10 @@
     <Compile Include="McpClient.py" />
     <Compile Include="McpHost.py" />
     <Compile Include="McpSystemApi.py" />
-    <Compile Include="ModelCore.py" />
-    <Compile Include="McpServer.py" />
     <Compile Include="Summarizer.py" />
     <Compile Include="Tools.py" />
+    <Compile Include="ModelCore.py" />
+    <Compile Include="McpServer.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DAL\" />

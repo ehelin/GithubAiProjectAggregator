@@ -20,11 +20,11 @@ const App = () =>
 
                     <div style={{ padding: "1rem", overflow: "auto" }}>
                         <Routes>
-                            <Route path="/analyze" element={<AnalyzeRepo />} />
                             <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/analyze" element={<AnalyzeRepo />} />
 
                             {/* Default redirect */}
-                            <Route path="*" element={<Navigate to="/analyze" replace />} />
+                            <Route path="*" element={<Navigate to="/dashboard" replace />} />
                         </Routes>
                     </div>
                 </div>

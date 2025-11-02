@@ -10,10 +10,10 @@ const Sidebar: FC = () =>
             <nav>
                 <ul>
                     <li>
-                        <Link to="/analyze">Analyze Repository</Link>
+                        <Link to="/dashboard">Summary Dashboard</Link>
                     </li>
                     <li>
-                        <Link to="/dashboard">Summary Dashboard</Link>
+                        <Link to="/analyze">Analyze Repository</Link>
                     </li>
                 </ul>
             </nav>
