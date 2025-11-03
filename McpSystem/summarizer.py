@@ -221,7 +221,7 @@ class Summarizer:
         if not pull_requests:
             print("⚠️ No pull requests found for this repository.", flush=True);
             response = "⚠️ No pull requests found for this repository."
-            self.repo.save_summary(self.repo_name, "pull_requests", response)
+            self.repo.save_summary(self.repo_name, "pulls", response)
             return response
         
         print("Setting up model request and sending...", flush=True);
@@ -259,8 +259,8 @@ class Summarizer:
         response = self.model.generate_response(prompt=full_prompt, max_new_tokens=400, temperature=0.3)
         
         print("Saving response...", flush=True);
-        # self.repo.save_summary(self.repo_name, "pull_requests", response)
-        self.repo.save_summary(self.repo_name, "pull_requests", {
+        # Changed from "pull_requests" to "pulls" to match API endpoint naming
+        self.repo.save_summary(self.repo_name, "pulls", {
             "metadata": metadata,
             "summary": response
         })
