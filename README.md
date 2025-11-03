@@ -1,6 +1,6 @@
 # GithubAiProjectAggregator
 
-MCP-based system that lets a local model work with a real repository context (files, commits, tests, docs) to assist the developer.
+MCP-based system that lets a local model work with a real repository context (files, commits, tests, docs) to assist the developer.  Created with ChatGPT and Claude Code as my pair programmers.
 
 ## What it does
 - Exposes repo context to the model via MCP tools
