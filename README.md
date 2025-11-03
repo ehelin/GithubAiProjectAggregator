@@ -1,96 +1,100 @@
 # GithubAiProjectAggregator
+> A Model Context Protocol (MCP) system that enables a local (or hybrid) model to work with real software context instead of generating code blindly.
 
-> MCP-based tool for aggregating, summarizing, and comparing GitHub AI / ML repositories using local models.
+This project demonstrates how a developer can collaborate with an AI model **that is aware of the actual codebase** — including structure, commit history, tests, and architectural patterns. The AI is not treated as a code generator that works in isolation, but as a partner that can navigate and interpret the same environment the developer works in.
 
-## 📦 Structure Overview
+The goal of this project is **clarity and augmentation**, not automation.
 
-This project is organized into multiple independent components, each with a clear responsibility:
+The developer remains the decision-maker.  
+The model assists by surfacing insights.
+
+---
+
+## 🧭 What This System Enables
+
+- The model can **inspect and summarize repository structure**
+- Understand **commit history & code evolution**
+- Identify **hotspots or refactoring targets**
+- Clarify **module responsibilities and relationships**
+- Help with **architecture comprehension**
+
+Example queries this system supports:
+
+> “Explain the purpose and interactions of the components in `services/payments`.”
+
+> “Which modules were most frequently edited in the last month and why?”
+
+This shifts AI from *producing code* to *supporting developer understanding*.
+
+---
+
+## 🧱 Architecture Overview
 
 | Component | Role |
 |----------|------|
-| **Web** | C# / ASP.NET / React UI: dashboards, visualizations, project trends |
-| **Aggregator Service** | C# orchestration: jobs, scheduling, storing results |
-| **McpClient** | C# JSON-RPC client: sends requests to the MCP Server |
-| **McpHost** | C# host runtime: spawns & transports to/from the Python MCP Server |
-| **McpServer** | Python-based MCP Server: implements tools (summarization, embeddings, GitHub API) |
+| **Web** | React + C# UI |
+| **McpClient** | C# JSON‑RPC bridge into the MCP server |
+| **McpHost** | C# runtime-layer that launches and streams to Python |
+| **McpServer (Python)** | Implements MCP tools and interacts with the model + repo |
 
-Within **McpServer**, the internal flow is:
+**Internal flow inside McpServer:**
 
 ```
-server.py → tools.py → { github_api.py, summarizer.py, embeddings.py }
+server.py        # Entry point and dispatcher
+tools.py         # Defines MCP tool operations
+repo_index.py    # Reads repo tree, diffs, commit metadata
+summarizer.py    # Creates contextual summaries using a local model
+embeddings.py    # Optional: builds vector embeddings if needed
 ```
 
-- `server.py` is the entrypoint and dispatcher  
-- `tools.py` defines MCP-level operations (SummarizeRepo, EmbedRepo, CompareRepos)  
-- `github_api.py` handles GitHub API calls  
-- `summarizer.py` wraps Phi‑3 model for text summarization  
-- `embeddings.py` wraps bge-m3 for converting text into numeric embeddings  
+---
+
+## 🚀 Setup & Running
+
+### Requirements
+- Python 3.10+
+- .NET SDK
+- (Optional) GPU if running local Phi‑3 or bge‑m3 models
+
+### Clone
+
+```
+git clone https://github.com/ehelin/GithubAiProjectAggregator.git
+```
+
+### MCP Server (Python)
+
+```
+cd McpServer
+python -m venv venv
+source venv/bin/activate   # or venv\Scripts\activate on Windows
+pip install -r requirements.txt
+```
+
+### Host + UI (C#)
+
+Open the solution:
+
+```
+GithubAiProjectAggregator.sln
+```
+
+Run:
+- `McpHost` → starts the MCP server bridge
+- `Web` → opens the UI dashboard
 
 ---
 
-## 🚀 Getting Started
+## 📌 Project State
 
-### Prerequisites
+This version is **complete and stable for its intended purpose**.  
+Future enhancements may be explored later, but there is **no active development underway right now.**
 
-- .NET SDK (for Web / Aggregator / Client / Host)  
-- Python 3.10+  
-- GPU with VRAM (≥ 8 GB) for local model usage (Phi‑3, bge-m3)  
-- GitHub token with read access to target repos  
-
-### Setup Steps
-
-1. **Clone the repo**  
-   ```bash
-   git clone https://github.com/ehelin/GithubAiProjectAggregator.git
-   cd GithubAiProjectAggregator
-   ```
-
-2. **Python environment for McpServer**  
-   ```bash
-   cd McpServer
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-3. **C# projects**  
-   Open `GithubAiProjectAggregator.sln` in Visual Studio or via `dotnet` CLI.  
-   Restore dependencies, build solution.
-
-4. **Launch host & server**  
-   From your aggregator service or host, spawn the Python MCP Server.  
-   The host handles transport (stdio / WebSockets) and bridges C# → Python.
-
-5. **Run sample request**  
-   Use the Web UI or a test client to call a tool like `SummarizeRepo("owner/repo")` or `CompareRepos(...)`.  
-   You should see summaries, embeddings, and comparisons in your dashboard.
+You can use, fork, learn from, or extend the system as-is.
 
 ---
 
-## ⚠️ Current Status & To‑Do
+## 🏁 Philosophy
 
-- All `*.py` files currently contain stub methods; functionality not yet implemented.  
-- No persistence layer included — you’ll need to wire in a database if you want to store results.  
-- Host / Client / Web integration is scaffold only — routing and wiring between components remains.  
-- Model loading / caching / performance tuning not yet addressed.  
-- Error handling, retries, rate-limiting for GitHub API calls is not in place.
-
----
-
-## 🧩 How to Contribute or Build Out
-
-1. Pick a stub you want to implement (e.g., `summarizer.summarize_repo_readme`).  
-2. Implement it using local model code (reuse from Habit Tracker if available).  
-3. Write unit tests in each component (e.g., input → output stubs).  
-4. Integrate through `tools.py` so MCP can route that tool.  
-5. Validate end-to-end: Web → Client → Host → Server → GitHub / Model → back.  
-6. Add persistence (DB) to store summaries, embeddings, comparisons over time.  
-7. Add scheduling, alerting, UI filtering, etc.
-
----
-
-## 🧠 Why MCP (Model-Context Protocol)?
-
-- **Separation of concerns:** the model side (Python) is decoupled from the UI/orchestration side (C#).  
-- **Extensibility:** you can swap the summarization engine, embedder, or GitHub logic without rewriting the UI.  
-- **Cross-language bridging:** Python can use best-in-class ML libs; C# can own orchestration, dashboards, DB.
+We are not removing the developer.  
+We are **raising the baseline** so the developer can focus on clarity, architecture, and intent — while the model supports understanding and insight where needed.
