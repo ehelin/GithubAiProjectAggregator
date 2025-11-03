@@ -6,7 +6,8 @@
       "Bash(cat:*)",
       "Bash(dir:*)",
       "Bash(ren:*)",
-      "Bash(ren tools.py Tools.py)"
+      "Bash(ren tools.py Tools.py)",
+      "Bash(nul)"
     ],
     "deny": [],
     "ask": []

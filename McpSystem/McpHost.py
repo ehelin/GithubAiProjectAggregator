@@ -18,7 +18,7 @@ from McpServer import main as server_main
 # ===========================================================
 # 🧩 CONFIGURATION
 # ===========================================================
-DEBUG_MODE = True  # True = single-process debug, False = multi-process
+DEBUG_MODE = False  # True = single-process debug, False = multi-process
 
 
 # ===========================================================

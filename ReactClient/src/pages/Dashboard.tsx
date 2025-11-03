@@ -2,6 +2,46 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { listSummaries, loadSummary } from "../api/mcpClient";
 
+// Simple markdown renderer for summary text
+const renderMarkdown = (text: string) => {
+    const lines = text.split('\n');
+    const elements: React.ReactNode[] = [];
+
+    lines.forEach((line, index) => {
+        let element: React.ReactNode;
+
+        // Skip lines that are just a forward slash
+        if (line.trim() === '/') {
+            return;
+        }
+
+        // Handle headings
+        if (line.startsWith('#### ')) {
+            element = <h4 key={index} style={{ fontSize: '16px', fontWeight: '600', marginTop: '16px', marginBottom: '8px', color: '#1f2937', wordWrap: 'break-word' }}>{line.replace('#### ', '')}</h4>;
+        } else if (line.startsWith('### ')) {
+            element = <h3 key={index} style={{ fontSize: '18px', fontWeight: '700', marginTop: '20px', marginBottom: '10px', color: '#111827', wordWrap: 'break-word' }}>{line.replace('### ', '')}</h3>;
+        } else if (line.startsWith('## ')) {
+            element = <h2 key={index} style={{ fontSize: '20px', fontWeight: '700', marginTop: '24px', marginBottom: '12px', color: '#111827', wordWrap: 'break-word' }}>{line.replace('## ', '')}</h2>;
+        } else if (line.trim() === '') {
+            element = <div key={index} style={{ height: '8px' }} />;
+        } else {
+            // Handle bold text within the line
+            const parts = line.split(/(\*\*.*?\*\*)/g);
+            const formattedLine = parts.map((part, i) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                    return <strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>{part.slice(2, -2)}</strong>;
+                }
+                return <span key={i}>{part}</span>;
+            });
+            element = <p key={index} style={{ marginBottom: '8px', lineHeight: '1.6', color: '#374151', wordWrap: 'break-word' }}>{formattedLine}</p>;
+        }
+
+        elements.push(element);
+    });
+
+    return <div style={{ wordWrap: 'break-word', overflowWrap: 'break-word' }}>{elements}</div>;
+};
+
 interface SummaryMeta
 {
     owner: string;
@@ -85,29 +125,25 @@ export default function Dashboard()
                     </p>
                 )}
 
-                <div className="space-y-4">
+                <div className="space-y-2">
                     {Object.entries(grouped).map(([owner, repos]: any) => (
-                        <div key={owner}>
-                            <h2 className="text-lg font-semibold">{owner}</h2>
-                            <div className="ml-4 space-y-2">
-                                {Object.entries(repos).map(([repo, modes]: any) => (
-                                    <div key={repo}>
-                                        <p className="font-medium text-gray-700">{repo}</p>
-                                        <div className="ml-4 flex gap-2 flex-wrap">
-                                            {modes.map((mode: string) => (
-                                                <button
-                                                    key={mode}
-                                                    onClick={() => handleSelect(owner, repo, mode)}
-                                                    className="px-3 py-1 text-sm bg-gray-200 hover:bg-gray-300 rounded"
-                                                >
-                                                    {mode}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
+                        Object.entries(repos).map(([repo, modes]: any) => (
+                            <div key={`${owner}-${repo}`} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <span style={{ fontWeight: 'bold', marginRight: '8px' }}>Owner:</span>
+                                <span>{owner}</span>
+                                <span style={{ fontWeight: 'bold', marginRight: '8px' }}>Repo:</span>
+                                <span>{repo}</span>
+                                {modes.map((mode: string) => (
+                                    <button
+                                        key={mode}
+                                        onClick={() => handleSelect(owner, repo, mode)}
+                                        className="px-3 py-1 text-sm bg-blue-100 hover:bg-blue-200 rounded"
+                                    >
+                                        {mode}
+                                    </button>
                                 ))}
                             </div>
-                        </div>
+                        ))
                     ))}
                 </div>
 
@@ -122,45 +158,88 @@ export default function Dashboard()
             {/* Summary Display */}
             {data && (
                 <section className="space-y-8 border-t pt-10">
-                    <header>
-                        <h1 className="text-3xl font-bold">
-                            {data.owner}/{data.repo}
-                        </h1>
-                        <p className="text-sm text-gray-500 mt-1">Mode: {data.mode}</p>
-                    </header>
-
-                    <section>
-                        <h2 className="text-xl font-semibold mb-3">Summary</h2>
-                        <p className="leading-relaxed whitespace-pre-line text-gray-800">
-                            {data.summary}
-                        </p>
-                    </section>
-
-                    {data.key_points && data.key_points.length > 0 && (
-                        <section>
-                            <h2 className="text-xl font-semibold mb-3">Key Points</h2>
-                            <ul className="list-disc ml-6 space-y-1 text-gray-800">
-                                {data.key_points.map((point, i) => (
-                                    <li key={i}>{point}</li>
-                                ))}
-                            </ul>
-                        </section>
-                    )}
-
-                    <section>
+                    <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                        <div>
+                            {data.owner && data.repo && (
+                                <h1 className="text-3xl font-bold">
+                                    {data.owner}/{data.repo}
+                                </h1>
+                            )}
+                            {data.mode && (
+                                <p className="text-sm text-gray-500 mt-1">Mode: {data.mode}</p>
+                            )}
+                        </div>
                         <button
                             onClick={() => setShowRaw(!showRaw)}
-                            className="text-sm text-blue-600 underline"
+                            style={{
+                                padding: '8px 16px',
+                                backgroundColor: showRaw ? '#3b82f6' : '#f3f4f6',
+                                color: showRaw ? '#ffffff' : '#1f2937',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '6px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                flexShrink: 0
+                            }}
                         >
-                            {showRaw ? "Hide Raw Output" : "Show Raw Output"}
+                            {showRaw ? "Show Formatted" : "Show Raw JSON"}
                         </button>
+                    </header>
 
-                        {showRaw && (
-                            <pre className="mt-4 p-4 bg-gray-100 rounded text-xs overflow-auto">
+                    {!showRaw ? (
+                        <>
+                            <section style={{
+                                backgroundColor: '#f9fafb',
+                                padding: '24px',
+                                borderRadius: '8px',
+                                border: '1px solid #e5e7eb'
+                            }}>
+                                <h2 style={{
+                                    fontSize: '20px',
+                                    fontWeight: '700',
+                                    marginBottom: '16px',
+                                    color: '#111827',
+                                    borderBottom: '2px solid #3b82f6',
+                                    paddingBottom: '8px'
+                                }}>
+                                    Summary
+                                </h2>
+                                <div>
+                                    {renderMarkdown(data.summary)}
+                                </div>
+                            </section>
+
+                            {data.key_points && data.key_points.length > 0 && (
+                                <section>
+                                    <h2 className="text-xl font-semibold mb-3">Key Points</h2>
+                                    <ul className="list-disc ml-6 space-y-1 text-gray-800">
+                                        {data.key_points.map((point, i) => (
+                                            <li key={i}>{point}</li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            )}
+                        </>
+                    ) : (
+                        <section>
+                            <pre style={{
+                                padding: '24px',
+                                backgroundColor: '#1f2937',
+                                color: '#f9fafb',
+                                borderRadius: '8px',
+                                fontSize: '13px',
+                                overflowY: 'auto',
+                                maxHeight: '70vh',
+                                lineHeight: '1.5',
+                                whiteSpace: 'pre-wrap',
+                                wordWrap: 'break-word',
+                                overflowWrap: 'break-word'
+                            }}>
                                 {JSON.stringify(data, null, 2)}
                             </pre>
-                        )}
-                    </section>
+                        </section>
+                    )}
                 </section>
             )}
         </div>

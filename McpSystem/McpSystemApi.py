@@ -22,7 +22,8 @@ from McpHost import McpHostController
 from fastapi.middleware.cors import CORSMiddleware
 
 # 🔧 Debug mode: True = direct calls (VS debugger friendly), False = subprocess mode
-DEBUG_MODE = False # os.getenv("MCP_DEBUG_MODE", "true").lower() == "true"
+# Set to True to avoid Windows subprocess pipe issues
+DEBUG_MODE = True # os.getenv("MCP_DEBUG_MODE", "true").lower() == "true"
 
 
 # ===========================================================
@@ -204,25 +205,9 @@ async def get_summary(owner: str, repo: str, mode: str):
     except Exception as ex:
         raise HTTPException(status_code=500, detail=str(ex))
 
-@app.post("/summarize/{mode}")
-async def summarize_repo(mode: str, req: RepoRequest):
-    owner = req.owner
-    repo = req.repo
-
-    try:
-        # 1) Only load existing summary
-        existing = await api.host.load_summary(owner, repo, mode)
-        if existing is not None:
-            return {"status": "ok", "data": existing}
-
-        # 2) Do NOT compute. User must go to AnalyzeRepo and explicitly run summarize.
-        return {
-            "status": "not_found",
-            "detail": "No summary exists. Use Analyze to create one."
-        }
-
-    except Exception as ex:
-        raise HTTPException(status_code=500, detail=str(ex))
+# Removed the problematic catch-all @app.post("/summarize/{mode}") route
+# It was shadowing the specific routes below and only loading existing summaries
+# instead of creating new ones
 
 @app.post("/summarize/readme")
 async def summarize_readme(req: RepoRequest):
