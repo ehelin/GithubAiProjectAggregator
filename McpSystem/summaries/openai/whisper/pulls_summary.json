@@ -1,0 +1,14 @@
+{
+    "metadata": {
+        "full_name": "openai/whisper",
+        "description": "Robust Speech Recognition via Large-Scale Weak Supervision",
+        "stars": 90256,
+        "forks": 11308,
+        "open_issues": 104,
+        "language": "Python",
+        "license": "MIT License",
+        "updated_at": "2025-11-03T01:16:58Z",
+        "watchers": 676
+    },
+    "summary": "### \ud83d\udd04 Pull Request Summary\n\n**1. \ud83c\udfaf Purpose of Changes**\n- Fix critical memory leaks in word-level timestamp alignment.\n- Enhance whisper's functionality by adding advanced hallucination detection and confidence scoring systems.\n- Introduce real-time streaming capabilities through WebSocket integration.\n- Optimize memory usage and monitor performance more effectively.\n- Establish a comprehensive fine-tuning framework with adapter layers.\n- Facilitate deployment of network services.\n- Correctly identify and use the ISO-639-1 code for Javanese language (`jv`).\n\n**2. \ud83d\udee0 Key Technical Changes**\n- Address and resolve a significant memory leak issue within the existing model's operation.\n- Develop additional modules (hallucination detection, optimizations) to improve overall utility and user experience.\n- Integrate WebSocket support for live audio stream processing.\n- Implement memory management enhancements and performance tracking tools.\n- Design and implement adaptable models via adapters for flexible fine-tuning processes.\n- Include functions for easier deployment of whisper-based applications over networks.\n- Amend the tokenizer.py script to accurately reflect proper language codes, specifically correcting the mislabeling of Javanese (`jv`) instead of Java (`jw`).\n\n**3. \u26a0 Risks or Breaking Changes**\n- The fixes for memory leaks may require recompilation or updates to dependent components; users must verify compatibility post-update.\n- Introduction of new functionalities like real-time streaming might necessitate changes in client application logic.\n- Performance improvements could alter resource consumption patterns, potentially affecting server load balancing strategies.\n- Fine-tuning frameworks add complexity which requires careful handling during"
+}

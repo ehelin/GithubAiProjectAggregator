@@ -1,0 +1,14 @@
+{
+    "metadata": {
+        "full_name": "openai/whisper",
+        "description": "Robust Speech Recognition via Large-Scale Weak Supervision",
+        "stars": 90256,
+        "forks": 11308,
+        "open_issues": 104,
+        "language": "Python",
+        "license": "MIT License",
+        "updated_at": "2025-11-03T01:16:58Z",
+        "watchers": 676
+    },
+    "summary": "### \u2705 Summary of Recent Development Activity\n\n**1. \ud83d\ude80 New Features or Enhancements**\n   - No specific new features or enhancements mentioned in the provided commits.\n\n**2. \ud83d\udc1b Bug Fixes**\n   - Updated torch.load to use weights_only=True to prevent security warnings (commit #2451).\n   - Ensured DTW cost tensor is on the same device as input tensor (commit #2561).\n   - Resolved GitHub display errors for Jupyter notebooks (commit #2589).\n\n**3. \ud83d\udee0 Refactoring / Code Improvements**\n   - Upgraded dependencies within the GitHub Actions workflow to their major semver versions (commits related to updating actions/checkout, actions/setup-python, and softprops/action-gh-release). This likely improves compatibility and ensures the use of the most current tools available.\n   - The refactoring includes bumping the groups associated with these dependencies to ensure they align with the newer versions.\n\n**4. \u2728 Notable Technical Changes**\n   - Significant updates have been made to the GitHub Actions configuration by automating dependency updates through Dependabot (commit #2486).\n   - These updates include upgrading the actions/checkout, actions/setup-python, and softprops/action-gh-release packages to their respective major semantic versions.\n\n**5. \ud83d\udccc Overall Impact**\n   - By keeping dependencies up to date, the team can benefit from improved functionality, enhanced security measures, and better integration with other services.\n   - Automated dependency management via Dependabot helps maintain consistency across development environments and reduces manual oversight required for such"
+}

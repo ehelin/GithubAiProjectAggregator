@@ -165,14 +165,16 @@ class McpHostController:
                     continue
 
                 for filename in os.listdir(repo_path):
-                    if filename.endswith(".json"):
-                        mode = filename[:-5]
+                    if filename.endswith("_summary.json"):
+                        # Extract mode name by removing "_summary.json" suffix
+                        mode = filename[:-13]  # Remove "_summary.json" (13 characters)
                         result.append({"owner": owner, "repo": repo, "mode": mode})
 
         return result
 
     async def load_summary(self, owner: str, repo: str, mode: str):
-        path = os.path.join(os.path.dirname(__file__), "summaries", owner, repo, f"{mode}.json")
+        # Files are stored as {mode}_summary.json
+        path = os.path.join(os.path.dirname(__file__), "summaries", owner, repo, f"{mode}_summary.json")
         if not os.path.exists(path):
             return None
         with open(path, "r", encoding="utf-8") as f:

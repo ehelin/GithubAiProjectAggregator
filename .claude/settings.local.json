@@ -7,9 +7,12 @@
       "Bash(dir:*)",
       "Bash(ren:*)",
       "Bash(ren tools.py Tools.py)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(find . -name \"pull_requests_summary.json\" -exec sh -c 'mv \"\"$1\"\" \"\"$(dirname \"\"$1\"\")/pulls_summary.json\"\"' _ {} ;)",
+      "WebFetch(domain:erichelin.wordpress.com)"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "parallel_mode": "false"
 }

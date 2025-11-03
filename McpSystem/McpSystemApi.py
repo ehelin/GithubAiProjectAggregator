@@ -49,6 +49,44 @@ class McpDebugController:
         print("[DEBUG API] 🛑 Stopping DEBUG mode...", flush=True)
         self._started = False
 
+    async def list_summaries(self):
+        """List all available summaries from the filesystem."""
+        import os
+        base = os.path.join(os.path.dirname(__file__), "summaries")
+        result = []
+
+        if not os.path.exists(base):
+            return result
+
+        for owner in os.listdir(base):
+            owner_path = os.path.join(base, owner)
+            if not os.path.isdir(owner_path):
+                continue
+
+            for repo in os.listdir(owner_path):
+                repo_path = os.path.join(owner_path, repo)
+                if not os.path.isdir(repo_path):
+                    continue
+
+                for filename in os.listdir(repo_path):
+                    if filename.endswith("_summary.json"):
+                        # Extract mode name by removing "_summary.json" suffix
+                        mode = filename[:-13]  # Remove "_summary.json" (13 characters)
+                        result.append({"owner": owner, "repo": repo, "mode": mode})
+
+        return result
+
+    async def load_summary(self, owner: str, repo: str, mode: str):
+        """Load a specific summary from the filesystem."""
+        import os
+        import json
+        # Files are stored as {mode}_summary.json
+        path = os.path.join(os.path.dirname(__file__), "summaries", owner, repo, f"{mode}_summary.json")
+        if not os.path.exists(path):
+            return None
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
     async def send_request(self, request: dict) -> dict:
         """Handle request by directly calling tool methods."""
         method = request.get("method")
